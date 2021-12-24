@@ -21,6 +21,7 @@ except ImportError:
 
 
 package = "countdown"
+newer_python_versions = ["3.10", "3.9"]
 python_versions = ["3.10", "3.9", "3.8", "3.7"]
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = (
@@ -151,7 +152,7 @@ def coverage(session: Session) -> None:
     session.run("coverage", *args)
 
 
-@session(python=python_versions)
+@session(python=newer_python_versions)  # works around typeguard issues
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""
     session.install(".")

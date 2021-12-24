@@ -1,7 +1,9 @@
 """Command-line interface."""
-import os
+from __future__ import annotations
+
 import re
 import shutil
+import sys
 import time
 
 import click
@@ -73,7 +75,7 @@ def main(duration: int) -> None:
 
 def enable_ansi_escape_codes() -> None:
     """If running on Windows, enable ANSI escape codes."""
-    if os.name == "nt":  # pragma: no cover
+    if sys.platform == "win32":  # pragma: no cover
         from ctypes import windll
 
         k = windll.kernel32
@@ -89,7 +91,7 @@ def enable_ansi_escape_codes() -> None:
         )
 
 
-def print_full_screen(lines):
+def print_full_screen(lines: list[str]) -> None:
     """Print the given lines centered in the middle of the terminal window."""
     width, height = shutil.get_terminal_size()
     width -= max(len(line) for line in lines)
@@ -99,7 +101,7 @@ def print_full_screen(lines):
     print(CLEAR + vertical_pad + padded_text, flush=True)
 
 
-def get_number_lines(seconds):
+def get_number_lines(seconds: int) -> list[str]:
     """Return list of lines which make large MM:SS glyphs for given seconds."""
     lines = [""] * 5
     minutes, seconds = divmod(seconds, 60)
