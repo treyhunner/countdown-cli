@@ -56,10 +56,20 @@ def duration(string: str) -> int:
 
 
 @click.command()
-@click.version_option()
+@click.version_option(package_name="countdown-cli")
 @click.argument("duration", type=duration)
 def main(duration: int) -> None:
-    """Countdown from the given duration to 0."""
+    """Countdown from the given duration to 0.
+
+    DURATION should be a number followed by m or s for minutes or seconds.
+
+    Examples of DURATION:
+
+    \b
+    - 5m (5 minutes)
+    - 45s (30 seconds)
+    - 2m30s (2 minutes and 30 seconds)
+    """  # noqa: D301
     enable_ansi_escape_codes()
     print(ENABLE_ALT_BUFFER + HIDE_CURSOR, end="")
     try:

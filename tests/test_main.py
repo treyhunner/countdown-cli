@@ -297,6 +297,13 @@ def test_main_with_no_arguments(runner: CliRunner) -> None:
     assert result.exit_code == 2
 
 
+def test_version_works(runner: CliRunner) -> None:
+    """It can print the version."""
+    result = runner.invoke(__main__.main, ["--version"])
+    assert ", version" in result.stdout
+    assert result.exit_code == 0
+
+
 def test_main_3_seconds_sleeps_4_times(
     runner: CliRunner,
     monkeypatch: pytest.MonkeyPatch,

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "countdown-cli"
-version = "0.2.0"
+version = "0.3.0"
 description = "Terminal program to display countdown timer"
 authors = ["Trey Hunner <trey@treyhunner.com>"]
 license = "MIT"
@@ -12,7 +12,7 @@ packages = [
     { include = "countdown", from = "src" },
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
 ]
 
 [tool.poetry.urls]

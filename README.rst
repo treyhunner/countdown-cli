@@ -39,13 +39,14 @@ countdown-cli
 Features
 --------
 
-* TODO
+* Full-screen countdown timer, centered in the terminal window
+* Command-line interface for Linux/Mac/Windows
 
 
 Requirements
 ------------
 
-* TODO
+* Python 3.7+
 
 
 Installation
