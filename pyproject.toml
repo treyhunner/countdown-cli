@@ -1,19 +1,22 @@
 [tool.poetry]
-name = "countdown"
+name = "countdown-cli"
 version = "0.1.0"
-description = "countdown"
+description = "Terminal program to display countdown timer"
 authors = ["Trey Hunner <trey@treyhunner.com>"]
 license = "MIT"
 readme = "README.rst"
-homepage = "https://github.com/treyhunner/countdown"
-repository = "https://github.com/treyhunner/countdown"
-documentation = "https://countdown.readthedocs.io"
+homepage = "https://github.com/treyhunner/countdown-cli"
+repository = "https://github.com/treyhunner/countdown-cli"
+documentation = "https://countdown-cli.readthedocs.io"
+packages = [
+    { include = "countdown", from = "src" },
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
 ]
 
 [tool.poetry.urls]
-Changelog = "https://github.com/treyhunner/countdown/releases"
+Changelog = "https://github.com/treyhunner/countdown-cli/releases"
 
 [tool.poetry.dependencies]
 python = "^3.7"

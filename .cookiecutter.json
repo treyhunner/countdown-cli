@@ -6,7 +6,7 @@
   "friendly_name": "countdown",
   "github_user": "treyhunner",
   "license": "MIT",
-  "package_name": "countdown",
+  "package_name": "countdown-cli",
   "project_name": "countdown",
   "version": "0.1.0"
 }

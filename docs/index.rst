@@ -13,4 +13,4 @@
    contributing
    Code of Conduct <codeofconduct>
    License <license>
-   Changelog <https://github.com/treyhunner/countdown/releases>
+   Changelog <https://github.com/treyhunner/countdown-cli/releases>

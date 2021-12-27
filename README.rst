@@ -1,5 +1,5 @@
-countdown
-=========
+countdown-cli
+=============
 
 |PyPI| |Status| |Python Version| |License|
 
@@ -7,26 +7,26 @@ countdown
 
 |pre-commit| |Black|
 
-.. |PyPI| image:: https://img.shields.io/pypi/v/countdown.svg
-   :target: https://pypi.org/project/countdown/
+.. |PyPI| image:: https://img.shields.io/pypi/v/countdown-cli.svg
+   :target: https://pypi.org/project/countdown-cli/
    :alt: PyPI
-.. |Status| image:: https://img.shields.io/pypi/status/countdown.svg
-   :target: https://pypi.org/project/countdown/
+.. |Status| image:: https://img.shields.io/pypi/status/countdown-cli.svg
+   :target: https://pypi.org/project/countdown-cli/
    :alt: Status
-.. |Python Version| image:: https://img.shields.io/pypi/pyversions/countdown
-   :target: https://pypi.org/project/countdown
+.. |Python Version| image:: https://img.shields.io/pypi/pyversions/countdown-cli
+   :target: https://pypi.org/project/countdown-cli
    :alt: Python Version
-.. |License| image:: https://img.shields.io/pypi/l/countdown
+.. |License| image:: https://img.shields.io/pypi/l/countdown-cli
    :target: https://opensource.org/licenses/MIT
    :alt: License
-.. |Read the Docs| image:: https://img.shields.io/readthedocs/countdown/latest.svg?label=Read%20the%20Docs
-   :target: https://countdown.readthedocs.io/
-   :alt: Read the documentation at https://countdown.readthedocs.io/
-.. |Tests| image:: https://github.com/treyhunner/countdown/workflows/Tests/badge.svg
-   :target: https://github.com/treyhunner/countdown/actions?workflow=Tests
+.. |Read the Docs| image:: https://img.shields.io/readthedocs/countdown-cli/latest.svg?label=Read%20the%20Docs
+   :target: https://countdown-cli.readthedocs.io/
+   :alt: Read the documentation at https://countdown-cli.readthedocs.io/
+.. |Tests| image:: https://github.com/treyhunner/countdown-cli/workflows/Tests/badge.svg
+   :target: https://github.com/treyhunner/countdown-cli/actions?workflow=Tests
    :alt: Tests
-.. |Codecov| image:: https://codecov.io/gh/treyhunner/countdown/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/treyhunner/countdown
+.. |Codecov| image:: https://codecov.io/gh/treyhunner/countdown-cli/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/treyhunner/countdown-cli
    :alt: Codecov
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
@@ -51,11 +51,11 @@ Requirements
 Installation
 ------------
 
-You can install *countdown* via pip_ from PyPI_:
+You can install *countdown-cli* via pip_ from PyPI_:
 
 .. code:: console
 
-   $ pip install countdown
+   $ pip install countdown-cli
 
 
 Usage
@@ -75,7 +75,7 @@ License
 -------
 
 Distributed under the terms of the `MIT license`_,
-*countdown* is free and open source software.
+*countdown-cli* is free and open source software.
 
 
 Issues
@@ -95,8 +95,8 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _PyPI: https://pypi.org/
 .. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-.. _file an issue: https://github.com/treyhunner/countdown/issues
+.. _file an issue: https://github.com/treyhunner/countdown-cli/issues
 .. _pip: https://pip.pypa.io/
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
-.. _Usage: https://countdown.readthedocs.io/en/latest/usage.html
+.. _Usage: https://countdown-cli.readthedocs.io/en/latest/usage.html
