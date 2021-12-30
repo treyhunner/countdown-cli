@@ -68,7 +68,7 @@ You can install *countdown-cli* via pip_ from PyPI_:
 
 .. code:: console
 
-   $ pip install countdown-cli
+   $ python3 -m pip install countdown-cli
 
 
 Usage
@@ -106,7 +106,7 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. _@cjolowicz: https://github.com/cjolowicz
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
-.. _PyPI: https://pypi.org/
+.. _PyPI: https://pypi.org/project/countdown-cli/
 .. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
 .. _file an issue: https://github.com/treyhunner/countdown-cli/issues
 .. _pip: https://pip.pypa.io/
