@@ -38,7 +38,11 @@ countdown-cli
 This project is based on a `Python Morsels`_ exercise for a command-line countdown timer.
 If you're working on that exercise right now, please **don't look at the source code** for this. 😉
 
-.. |PyPI| image:: python-morsels-logo.png
+|Logo|
+
+.. |Logo| image:: images/python-morsels-logo.png
+   :target: https://www.pythonmorsels.com
+   :width: 400
    :alt: an adorable snake taking a bite out of a cookie with the words Python Morsels next to it (Python Morsels logo)
 
 
@@ -48,10 +52,16 @@ Features
 * Full-screen countdown timer, centered in the terminal window
 * Command-line interface for Linux/Mac/Windows
 
-.. |PyPI| image:: 3253.png
+|32:53|
+
+|14:57|
+
+.. |32:53| image:: images/3253.png
+   :width: 500
    :alt: 32:53 shown in large letters in center of an xterm window (black background with white text)
 
-.. |PyPI| image:: 1457.png
+.. |14:57| image:: images/1457.png
+   :width: 500
    :alt: 14:57 shown in large letters in center of terminal window (light background with darker text)
 
 
@@ -103,6 +113,7 @@ Credits
 
 This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter`_ template.
 
+.. _Python Morsels: https://www.pythonmorsels.com
 .. _@cjolowicz: https://github.com/cjolowicz
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
@@ -113,4 +124,3 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
 .. _Usage: https://countdown-cli.readthedocs.io/en/latest/usage.html
-.. _Python Morsels: https://www.pythonmorsels.com/
