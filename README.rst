@@ -40,7 +40,7 @@ If you're working on that exercise right now, please **don't look at the source 
 
 |Logo|
 
-.. |Logo| image:: images/python-morsels-logo.png
+.. |Logo| image:: https://countdown-cli.readthedocs.io/en/latest/_images/python-morsels-logo.png
    :target: https://www.pythonmorsels.com
    :width: 400
    :alt: an adorable snake taking a bite out of a cookie with the words Python Morsels next to it (Python Morsels logo)
@@ -56,11 +56,11 @@ Features
 
 |14:57|
 
-.. |32:53| image:: images/3253.png
+.. |32:53| image:: https://countdown-cli.readthedocs.io/en/latest/_images/3253.png
    :width: 500
    :alt: 32:53 shown in large letters in center of an xterm window (black background with white text)
 
-.. |14:57| image:: images/1457.png
+.. |14:57| image:: https://countdown-cli.readthedocs.io/en/latest/_images/1457.png
    :width: 500
    :alt: 14:57 shown in large letters in center of terminal window (light background with darker text)
 
