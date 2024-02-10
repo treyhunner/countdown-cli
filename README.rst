@@ -45,6 +45,10 @@ If you're working on that exercise right now, please **don't look at the source 
    :width: 400
    :alt: an adorable snake taking a bite out of a cookie with the words Python Morsels next to it (Python Morsels logo)
 
+Wondering how this package works?
+**Don't look at the source code just yet!**
+Instead, try implementing this package with the `Python Morsels "countdown" exercise <https://www.pythonmorsels.com/exercises/fc3be8467c634f978eae0c315f5677d1/>`_!
+
 
 Features
 --------
