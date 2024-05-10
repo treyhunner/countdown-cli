@@ -1,5 +1,4 @@
 """Command-line interface."""
-from __future__ import annotations
 
 import re
 import shutil
@@ -46,7 +45,7 @@ CHARS = {
 CLEAR = "\033[H\033[J"
 
 
-def duration(string: str) -> int:
+def duration(string):
     """Convert given XmXs string to seconds (as an integer)."""
     match = DURATION_RE.search(string)
     if not match:
@@ -58,7 +57,7 @@ def duration(string: str) -> int:
 @click.command()
 @click.version_option(package_name="countdown-cli")
 @click.argument("duration", type=duration)
-def main(duration: int) -> None:
+def main(duration):
     """Countdown from the given duration to 0.
 
     DURATION should be a number followed by m or s for minutes or seconds.
@@ -83,7 +82,7 @@ def main(duration: int) -> None:
         print(SHOW_CURSOR + DISABLE_ALT_BUFFER, end="")
 
 
-def enable_ansi_escape_codes() -> None:
+def enable_ansi_escape_codes():
     """If running on Windows, enable ANSI escape codes."""
     if sys.platform == "win32":  # pragma: no cover
         from ctypes import windll
@@ -101,7 +100,7 @@ def enable_ansi_escape_codes() -> None:
         )
 
 
-def print_full_screen(lines: list[str]) -> None:
+def print_full_screen(lines):
     """Print the given lines centered in the middle of the terminal window."""
     width, height = shutil.get_terminal_size()
     width -= max(len(line) for line in lines)
@@ -111,7 +110,7 @@ def print_full_screen(lines: list[str]) -> None:
     print(CLEAR + vertical_pad + padded_text, flush=True)
 
 
-def get_number_lines(seconds: int) -> list[str]:
+def get_number_lines(seconds):
     """Return list of lines which make large MM:SS glyphs for given seconds."""
     lines = [""] * 5
     minutes, seconds = divmod(seconds, 60)
