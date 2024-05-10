@@ -1,9 +1,4 @@
 """PyTest configuration."""
-
-from __future__ import annotations
-
-from typing import Any
-
 from _pytest.assertion import truncate
 
 truncate.DEFAULT_MAX_LINES = 40

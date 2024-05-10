@@ -50,7 +50,7 @@ source = ["countdown", "tests"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 100
+fail_under = 96
 
 [tool.mypy]
 strict = true

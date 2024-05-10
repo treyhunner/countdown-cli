@@ -1,12 +1,8 @@
 """Test cases for the __main__ module."""
-
-from __future__ import annotations
-
 import os
 import re
 from textwrap import dedent
 from textwrap import indent
-from typing import Callable
 
 import pytest
 from click.testing import CliRunner
