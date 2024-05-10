@@ -19,22 +19,23 @@ classifiers = [
 Changelog = "https://github.com/treyhunner/countdown-cli/releases"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8.1"
 click = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.0.0"
-coverage = {extras = ["toml"], version = "^6.2"}
+pytest = "^8.2.0"
+coverage = {extras = ["toml"], version = "^7.5.1"}
 pre-commit = "^2.16.0"
-flake8 = "^4.0.1"
-black = ">=21.10b0"
-flake8-bandit = "^3.0.0"
-flake8-bugbear = "^22.1.11"
-flake8-docstrings = "^1.6.0"
-flake8-rst-docstrings = "^0.2.5"
-pep8-naming = "^0.12.1"
-reorder-python-imports = "^2.6.0"
-pre-commit-hooks = "^4.1.0"
+flake8 = "^7.0.0"
+black = "^24.4.2"
+flake8-bandit = "^4.1.1"
+flake8-bugbear = "^24.4.26"
+flake8-docstrings = "^1.7.0"
+flake8-rst-docstrings = "^0.3.0"
+pep8-naming = "^0.13.3"
+reorder-python-imports = "^3.12.0"
+pre-commit-hooks = "^4.6.0"
+docutils = { version = "!=0.21.post1", optional = true }
 
 [tool.poetry.scripts]
 countdown = "countdown.__main__:main"
