@@ -5,6 +5,8 @@ from pathlib import Path
 from textwrap import dedent
 
 import nox
+import tomllib
+
 
 try:
     from nox_poetry import session
@@ -19,7 +21,12 @@ except ImportError:
 
 
 package = "countdown"
-python_versions = ["3.10", "3.9", "3.8"]
+config = tomllib.loads(Path("pyproject.toml").read_text())
+python_versions = [
+    classifier.split()[-1]
+    for classifier in config["tool"]["poetry"]["classifiers"]
+    if classifier.startswith("Programming Language :: Python :: ")
+]
 nox.needs_version = ">= 2021.6.6"
 nox.options.sessions = ("pre-commit", "tests")
 
