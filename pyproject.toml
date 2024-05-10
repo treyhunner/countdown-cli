@@ -7,7 +7,6 @@ license = "MIT"
 readme = "README.rst"
 homepage = "https://github.com/treyhunner/countdown-cli"
 repository = "https://github.com/treyhunner/countdown-cli"
-documentation = "https://countdown-cli.readthedocs.io"
 packages = [
     { include = "countdown", from = "src" },
 ]

@@ -8,13 +8,11 @@ welcomes contributions in the form of bug reports, feature requests, and pull re
 Here is a list of important resources for contributors:
 
 - `Source Code`_
-- `Documentation`_
 - `Issue Tracker`_
 - `Code of Conduct`_
 
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _Source Code: https://github.com/treyhunner/countdown-cli
-.. _Documentation: https://countdown-cli.readthedocs.io/
 .. _Issue Tracker: https://github.com/treyhunner/countdown-cli/issues
 
 How to report a bug
