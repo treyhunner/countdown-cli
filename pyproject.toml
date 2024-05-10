@@ -45,6 +45,9 @@ docutils = { version = "!=0.21.post1", optional = true }
 [tool.poetry.scripts]
 countdown = "countdown.__main__:main"
 
+[tool.poetry.group.dev.dependencies]
+tomli = "^2.0.1"
+
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 tests = ["tests", "*/tests"]

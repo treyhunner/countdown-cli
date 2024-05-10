@@ -6,92 +6,65 @@ on:
 
 jobs:
   build-package:
-    name: Build & inspect our package.
+    name: Build & verify package
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: hynek/build-and-inspect-python-package@v2
         id: baipp
+
     outputs:
       python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
 
   tests:
-    name: ${{ matrix.session }} ${{ matrix.python }} / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Tests on ${{ matrix.python-version }}
+    needs: build-package
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ${{ fromJson(needs.build-package.outputs.python-versions) }}
 
-    env:
-      FORCE_COLOR: "1"
-      PRE_COMMIT_COLOR: "always"
-
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4.5.0
+      - uses: actions/checkout@v4
+      - name: Download pre-built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+      - run: tar xf dist/*.tar.gz --strip-components=1
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
-
-      - name: Upgrade pip in virtual environments
-        shell: python
-        run: |
-          import os
-          import pip
-
-          with open(os.environ["GITHUB_ENV"], mode="a") as io:
-              print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
+          allow-prereleases: true
+          cache: pip
 
       - name: Install Poetry
         run: |
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
+          pipx install poetry
           poetry --version
 
       - name: Install Nox
         run: |
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
-          pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
-          nox --version
+          pipx install nox
+          pipx inject nox nox-poetry
 
-      - name: Compute pre-commit cache key
-        if: matrix.session == 'pre-commit'
-        id: pre-commit-cache
-        shell: python
-        run: |
-          import hashlib
-          import sys
-
-          python = "py{}.{}".format(*sys.version_info[:2])
-          payload = sys.version.encode() + sys.executable.encode()
-          digest = hashlib.sha256(payload).hexdigest()
-          result = "${{ runner.os }}-{}-{}-pre-commit".format(python, digest[:8])
-
-          print("::set-output name=result::{}".format(result))
-
-      - name: Restore pre-commit cache
-        uses: actions/cache@v2.1.7
-        if: matrix.session == 'pre-commit'
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.cache/pre-commit
-          key: ${{ steps.pre-commit-cache.outputs.result }}-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            ${{ steps.pre-commit-cache.outputs.result }}-
+          name: coverage-data-${{ matrix.python-version }}
+          path: .coverage.*
+          if-no-files-found: ignore
 
       - name: Run Nox
         run: |
-          nox --force-color --python=${{ matrix.python }}
+          nox --force-color --python=${{ matrix.python-version }}
 
       - name: Upload coverage data
-        if: always() && matrix.session == 'tests'
         uses: "actions/upload-artifact@v3.1.2"
         with:
           name: coverage-data
@@ -102,28 +75,23 @@ jobs:
     needs: tests
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4.5.0
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
+          python-version-file: .python-version-default
+          cache: pip
 
       - name: Install Poetry
         run: |
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
+          pipx install poetry
           poetry --version
 
       - name: Install Nox
         run: |
-          pipx install --pip-args=--constraint=.github/workflows/constraints.txt nox
-          pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
-          nox --version
+          pipx install nox
+          pipx inject nox nox-poetry
 
       - name: Download coverage data
         uses: actions/download-artifact@v3.0.2
@@ -140,3 +108,18 @@ jobs:
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v2.1.0
+
+  required-checks-pass:
+    name: Ensure everything required is passing for branch protection
+    if: always()
+
+    needs:
+      - coverage
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

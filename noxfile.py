@@ -5,7 +5,11 @@ from pathlib import Path
 from textwrap import dedent
 
 import nox
-import tomllib
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 try:
