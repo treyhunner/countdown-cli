@@ -3,7 +3,7 @@ countdown-cli
 
 |PyPI| |Status| |Python Version| |License|
 
-|Read the Docs| |Tests| |Codecov|
+|Tests| |Codecov|
 
 |pre-commit| |Black|
 
@@ -19,9 +19,6 @@ countdown-cli
 .. |License| image:: https://img.shields.io/pypi/l/countdown-cli
    :target: https://opensource.org/licenses/MIT
    :alt: License
-.. |Read the Docs| image:: https://img.shields.io/readthedocs/countdown-cli/latest.svg?label=Read%20the%20Docs
-   :target: https://countdown-cli.readthedocs.io/
-   :alt: Read the documentation at https://countdown-cli.readthedocs.io/
 .. |Tests| image:: https://github.com/treyhunner/countdown-cli/workflows/Tests/badge.svg
    :target: https://github.com/treyhunner/countdown-cli/actions?workflow=Tests
    :alt: Tests
@@ -40,7 +37,7 @@ If you're working on that exercise right now, please **don't look at the source 
 
 |Logo|
 
-.. |Logo| image:: https://raw.githubusercontent.com/treyhunner/countdown-cli/main/docs/images/python-morsels-logo.png
+.. |Logo| image:: https://raw.githubusercontent.com/treyhunner/countdown-cli/main/images/python-morsels-logo.png
    :target: https://www.pythonmorsels.com
    :width: 400
    :alt: an adorable snake taking a bite out of a cookie with the words Python Morsels next to it (Python Morsels logo)
@@ -60,11 +57,11 @@ Features
 
 |14:57|
 
-.. |32:53| image:: https://raw.githubusercontent.com/treyhunner/countdown-cli/main/docs/images/3253.png
+.. |32:53| image:: https://raw.githubusercontent.com/treyhunner/countdown-cli/main/images/3253.png
    :width: 500
    :alt: 32:53 shown in large letters in center of an xterm window (black background with white text)
 
-.. |14:57| image:: https://raw.githubusercontent.com/treyhunner/countdown-cli/main/docs/images/1457.png
+.. |14:57| image:: https://raw.githubusercontent.com/treyhunner/countdown-cli/main/images/1457.png
    :width: 500
    :alt: 14:57 shown in large letters in center of terminal window (light background with darker text)
 
@@ -83,12 +80,6 @@ You can install *countdown-cli* via pip_ from PyPI_:
 .. code:: console
 
    $ python3 -m pip install countdown-cli
-
-
-Usage
------
-
-Please see the `Command-line Reference <Usage_>`_ for details.
 
 
 Contributing
@@ -127,4 +118,3 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. _pip: https://pip.pypa.io/
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
-.. _Usage: https://countdown-cli.readthedocs.io/en/latest/usage.html

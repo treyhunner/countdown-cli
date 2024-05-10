@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "countdown-cli"
-version = "1.0.2"
+version = "1.0.3"
 description = "Terminal program to display countdown timer"
 authors = ["Trey Hunner <trey@treyhunner.com>"]
 license = "MIT"
 readme = "README.rst"
 homepage = "https://github.com/treyhunner/countdown-cli"
 repository = "https://github.com/treyhunner/countdown-cli"
-documentation = "https://countdown-cli.readthedocs.io"
 packages = [
     { include = "countdown", from = "src" },
 ]
