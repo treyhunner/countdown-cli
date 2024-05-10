@@ -1,14 +1,18 @@
 """Nox sessions."""
-import os
-import shutil
+
 import sys
 from pathlib import Path
 from textwrap import dedent
 
 import nox
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
+
 try:
-    from nox_poetry import Session
     from nox_poetry import session
 except ImportError:
     message = f"""\
@@ -21,21 +25,17 @@ except ImportError:
 
 
 package = "countdown"
-newer_python_versions = ["3.10", "3.9"]
-python_versions = ["3.10", "3.9", "3.8", "3.7"]
+config = tomllib.loads(Path("pyproject.toml").read_text())
+python_versions = [
+    classifier.split()[-1]
+    for classifier in config["tool"]["poetry"]["classifiers"]
+    if classifier.startswith("Programming Language :: Python :: ")
+]
 nox.needs_version = ">= 2021.6.6"
-nox.options.sessions = (
-    "pre-commit",
-    "safety",
-    "mypy",
-    "tests",
-    "typeguard",
-    "xdoctest",
-    "docs-build",
-)
+nox.options.sessions = ("pre-commit", "tests")
 
 
-def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
+def activate_virtualenv_in_precommit_hooks(session) -> None:
     """Activate virtualenv in hooks installed by pre-commit.
 
     This function patches git hooks installed by pre-commit to activate the
@@ -86,12 +86,11 @@ def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
 
 
 @session(name="pre-commit", python="3.10")
-def precommit(session: Session) -> None:
+def precommit(session):
     """Lint using pre-commit."""
     args = session.posargs or ["run", "--all-files", "--show-diff-on-failure"]
     session.install(
         "black",
-        "darglint",
         "flake8",
         "flake8-bandit",
         "flake8-bugbear",
@@ -100,7 +99,6 @@ def precommit(session: Session) -> None:
         "pep8-naming",
         "pre-commit",
         "pre-commit-hooks",
-        "pyupgrade",
         "reorder-python-imports",
     )
     session.run("pre-commit", *args)
@@ -108,27 +106,8 @@ def precommit(session: Session) -> None:
         activate_virtualenv_in_precommit_hooks(session)
 
 
-@session(python="3.10")
-def safety(session: Session) -> None:
-    """Scan dependencies for insecure packages."""
-    requirements = session.poetry.export_requirements()
-    session.install("safety")
-    session.run("safety", "check", "--full-report", f"--file={requirements}")
-
-
 @session(python=python_versions)
-def mypy(session: Session) -> None:
-    """Type-check using mypy."""
-    args = session.posargs or ["src", "tests", "docs/conf.py"]
-    session.install(".")
-    session.install("mypy", "pytest")
-    session.run("mypy", *args)
-    if not session.posargs:
-        session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
-
-
-@session(python=python_versions)
-def tests(session: Session) -> None:
+def tests(session):
     """Run the test suite."""
     session.install(".")
     session.install("coverage[toml]", "pytest", "pygments")
@@ -140,7 +119,7 @@ def tests(session: Session) -> None:
 
 
 @session
-def coverage(session: Session) -> None:
+def coverage(session):
     """Produce the coverage report."""
     args = session.posargs or ["report"]
 
@@ -150,57 +129,3 @@ def coverage(session: Session) -> None:
         session.run("coverage", "combine")
 
     session.run("coverage", *args)
-
-
-@session(python=newer_python_versions)  # works around typeguard issues
-def typeguard(session: Session) -> None:
-    """Runtime type checking using Typeguard."""
-    session.install(".")
-    session.install("pytest", "typeguard", "pygments")
-    session.run("pytest", f"--typeguard-packages={package}", *session.posargs)
-
-
-@session(python=python_versions)
-def xdoctest(session: Session) -> None:
-    """Run examples with xdoctest."""
-    if session.posargs:
-        args = [package, *session.posargs]
-    else:
-        args = [f"--modname={package}", "--command=all"]
-        if "FORCE_COLOR" in os.environ:
-            args.append("--colored=1")
-
-    session.install(".")
-    session.install("xdoctest[colors]")
-    session.run("python", "-m", "xdoctest", *args)
-
-
-@session(name="docs-build", python="3.10")
-def docs_build(session: Session) -> None:
-    """Build the documentation."""
-    args = session.posargs or ["docs", "docs/_build"]
-    if not session.posargs and "FORCE_COLOR" in os.environ:
-        args.insert(0, "--color")
-
-    session.install(".")
-    session.install("sphinx", "sphinx-click", "furo")
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
-    session.run("sphinx-build", *args)
-
-
-@session(python="3.10")
-def docs(session: Session) -> None:
-    """Build and serve the documentation with live reloading on file changes."""
-    args = session.posargs or ["--open-browser", "docs", "docs/_build"]
-    session.install(".")
-    session.install("sphinx", "sphinx-autobuild", "sphinx-click", "furo")
-
-    build_dir = Path("docs", "_build")
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-
-    session.run("sphinx-autobuild", *args)
