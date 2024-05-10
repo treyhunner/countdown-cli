@@ -1,4 +1,5 @@
 """Command-line interface."""
+
 import re
 import shutil
 import sys
