@@ -66,7 +66,7 @@ def main(duration):
 
     \b
     - 5m (5 minutes)
-    - 45s (30 seconds)
+    - 45s (45 seconds)
     - 2m30s (2 minutes and 30 seconds)
     """  # noqa: D301
     enable_ansi_escape_codes()
