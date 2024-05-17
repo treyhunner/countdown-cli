@@ -17,11 +17,11 @@ DURATION_RE = re.compile(
     r"""
     ^
     (?:                 # Optional minutes
-        ( \d{1,2} )     # D or DD
+        ( \d+ )         # one or more digits
         m               # "m"
     )?
     (?:                 # Optional seconds
-        ( \d{1,2} )     # D or DD
+        ( \d+ )         # one or more digits
         s               # "s"
     )?
     $
