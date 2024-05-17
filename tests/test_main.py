@@ -63,6 +63,10 @@ def test_duration_10_minutes():
     assert __main__.duration("10m") == 600
 
 
+def test_duration_150_minutes():
+    assert __main__.duration("150m") == 9000
+
+
 def test_duration_25_minutes():
     assert __main__.duration("25m") == 1500
 
@@ -117,6 +121,21 @@ def test_get_number_lines_45_minutes():
             ██ ██████    ██████ ██████
     """
         ).strip("\n")
+    )
+
+
+def test_get_number_lines_101_minutes():
+    assert join_lines(__main__.get_number_lines(6060)) == indent(
+        dedent(
+            """
+        ██  ██████    ██     ██████ ██████
+       ███  ██  ██   ███  ██ ██  ██ ██  ██
+        ██  ██  ██    ██     ██  ██ ██  ██
+        ██  ██  ██    ██  ██ ██  ██ ██  ██
+        ██  ██████    ██     ██████ ██████
+    """
+        ).strip("\n"),
+        "  ",
     )
 
 
