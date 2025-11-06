@@ -2,8 +2,7 @@
 
 import os
 import re
-from textwrap import dedent
-from textwrap import indent
+from textwrap import dedent, indent
 
 import pytest
 from click.testing import CliRunner
@@ -76,48 +75,39 @@ def test_duration_2_minutes_and_8_seconds():
 
 
 def test_get_number_lines_10_seconds():
-    assert (
-        join_lines(__main__.get_number_lines(10))
-        == dedent(
-            """
+    assert join_lines(__main__.get_number_lines(10)) == dedent(
+        """
         ██████ ██████       ██  ██████
         ██  ██ ██  ██ ██   ███  ██  ██
         ██  ██ ██  ██       ██  ██  ██
         ██  ██ ██  ██ ██    ██  ██  ██
         ██████ ██████       ██  ██████
     """
-        ).strip("\n")
-    )
+    ).strip("\n")
 
 
 def test_get_number_lines_60_seconds():
-    assert (
-        join_lines(__main__.get_number_lines(60))
-        == dedent(
-            """
+    assert join_lines(__main__.get_number_lines(60)) == dedent(
+        """
         ██████    ██     ██████ ██████
         ██  ██   ███  ██ ██  ██ ██  ██
         ██  ██    ██     ██  ██ ██  ██
         ██  ██    ██  ██ ██  ██ ██  ██
         ██████    ██     ██████ ██████
     """
-        ).strip("\n")
-    )
+    ).strip("\n")
 
 
 def test_get_number_lines_45_minutes():
-    assert (
-        join_lines(__main__.get_number_lines(2700))
-        == dedent(
-            """
+    assert join_lines(__main__.get_number_lines(2700)) == dedent(
+        """
         ██  ██ ██████    ██████ ██████
         ██  ██ ██     ██ ██  ██ ██  ██
         ██████ ██████    ██  ██ ██  ██
             ██     ██ ██ ██  ██ ██  ██
             ██ ██████    ██████ ██████
     """
-        ).strip("\n")
-    )
+    ).strip("\n")
 
 
 def test_get_number_lines_17_minutes_and_four_seconds():
@@ -136,48 +126,39 @@ def test_get_number_lines_17_minutes_and_four_seconds():
 
 
 def test_get_number_lines_8_minutes_and_6_seconds():
-    assert (
-        join_lines(__main__.get_number_lines(486))
-        == dedent(
-            """
+    assert join_lines(__main__.get_number_lines(486)) == dedent(
+        """
         ██████  ████     ██████ ██████
         ██  ██ ██  ██ ██ ██  ██ ██
         ██  ██  ████     ██  ██ ██████
         ██  ██ ██  ██ ██ ██  ██ ██  ██
         ██████  ████     ██████ ██████
     """
-        ).strip("\n")
-    )
+    ).strip("\n")
 
 
 def test_get_number_lines_9_minutes():
-    assert (
-        join_lines(__main__.get_number_lines(540))
-        == dedent(
-            """
+    assert join_lines(__main__.get_number_lines(540)) == dedent(
+        """
         ██████ ██████    ██████ ██████
         ██  ██ ██  ██ ██ ██  ██ ██  ██
         ██  ██ ██████    ██  ██ ██  ██
         ██  ██     ██ ██ ██  ██ ██  ██
         ██████  █████    ██████ ██████
     """
-        ).strip("\n")
-    )
+    ).strip("\n")
 
 
 def test_get_number_lines_3478():
-    assert (
-        join_lines(__main__.get_number_lines(2118))
-        == dedent(
-            """
+    assert join_lines(__main__.get_number_lines(2118)) == dedent(
+        """
         ██████ ██████       ██   ████
             ██ ██     ██   ███  ██  ██
          █████ ██████       ██   ████
             ██     ██ ██    ██  ██  ██
         ██████ ██████       ██   ████
     """
-        ).strip("\n")
-    )
+    ).strip("\n")
 
 
 def fake_size(
@@ -204,9 +185,7 @@ def test_print_full_screen_tiny_terminal(
 
 
               hello world
-    """.rstrip(
-            " "
-        )
+    """.rstrip(" ")
     )
 
 
@@ -231,9 +210,7 @@ def test_print_full_screen_larger_terminal(
 
 
                                   hello world
-        """.rstrip(
-            " "
-        )
+        """.rstrip(" ")
     )
 
 
@@ -273,16 +250,14 @@ def test_print_full_screen_multiline_text(
                                     █████ ██████       ██   ████
                                        ██     ██ ██    ██  ██  ██
                                    ██████ ██████       ██   ████
-    """.rstrip(
-            " "
-        )
+    """.rstrip(" ")
     )
 
 
 def test_main_with_no_arguments(runner):
     """It exits with a status code of zero."""
     result = runner.invoke(__main__.main)
-    assert result.stdout == dedent(
+    assert result.output == dedent(
         """\
         Usage: main [OPTIONS] DURATION
         Try 'main --help' for help.
@@ -355,9 +330,7 @@ def test_main_3_seconds_sleeps_4_times(
               ██  ██ ██  ██    ██  ██ ██  ██
               ██  ██ ██  ██ ██ ██  ██ ██  ██
               ██████ ██████    ██████ ██████
-    """.rstrip(
-            " "
-        )
+    """.rstrip(" ")
     )
     assert fake_sleep.slept == 4  # 3 seconds = 4 sleeps
 
@@ -441,9 +414,7 @@ def test_main_1_minute(
 ██  ██ ██  ██    ██████ ██  ██
 ██  ██ ██  ██ ██     ██ ██  ██
 ██████ ██████    ██████ ██████
-                """.rstrip(
-            " "
-        )
+                """.rstrip(" ")
     )
 
 
