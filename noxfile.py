@@ -4,8 +4,9 @@ import nox
 
 nox.options.default_venv_backend = "uv"
 
-# Python versions to test, matching pyproject.toml classifiers
-PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
+# Read supported Python versions from pyproject.toml classifiers
+PYPROJECT = nox.project.load_toml("pyproject.toml")
+PYTHON_VERSIONS = nox.project.python_versions(PYPROJECT)
 
 
 @nox.session(python=PYTHON_VERSIONS)
