@@ -41,80 +41,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
-          cache: pip
 
-      - name: Install Poetry
-        run: |
-          pipx install poetry
-          poetry --version
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Install Nox
-        run: |
-          pipx install nox
-          pipx inject nox nox-poetry
+      - name: Install nox
+        run: uv tool install nox
 
-      - name: Upload coverage data
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-data-${{ matrix.python-version }}
-          path: .coverage.*
-          if-no-files-found: ignore
+      - name: Run tests with nox
+        run: uvx nox --force-color --python=${{ matrix.python-version }} -s tests
 
-      - name: Run Nox
-        run: |
-          nox --force-color --python=${{ matrix.python-version }}
-
-      - name: Upload coverage data
-        uses: "actions/upload-artifact@v4"
-        with:
-          name: coverage-data
-          path: ".coverage.*"
-
-  coverage:
-    runs-on: ubuntu-latest
-    needs: tests
-    steps:
-      - name: Check out the repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: .python-version-default
-          cache: pip
-
-      - name: Install Poetry
-        run: |
-          pipx install poetry
-          poetry --version
-
-      - name: Install Nox
-        run: |
-          pipx install nox
-          pipx inject nox nox-poetry
-
-      - name: Download coverage data
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-data
-
-      - name: Combine coverage data and display human readable report
-        run: |
-          nox --force-color --session=coverage
-
-      - name: Create coverage report
-        run: |
-          nox --force-color --session=coverage -- xml
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v2.1.0
+      - name: Upload coverage to Codecov (Python 3.12 only)
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
 
   required-checks-pass:
     name: Ensure everything required is passing for branch protection
     if: always()
 
     needs:
-      - coverage
+      - tests
 
     runs-on: ubuntu-latest
 
