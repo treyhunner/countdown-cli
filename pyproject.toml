@@ -4,7 +4,7 @@ version = "1.0.2"
 description = "Terminal program to display countdown timer"
 readme = "README.rst"
 license = { text = "MIT" }
-requires-python = ">=3.8.1"
+requires-python = ">=3.10"
 authors = [
     { name = "Trey Hunner" }
 ]
@@ -47,7 +47,7 @@ source = ["countdown", "tests"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 96
+fail_under = 100
 
 [tool.mypy]
 strict = true

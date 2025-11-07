@@ -16,8 +16,7 @@ def paragraphs(lines):
         elif group:
             yield group
             group = []
-    if group:
-        yield group
+    yield group
 
 
 def transpose(lines):
