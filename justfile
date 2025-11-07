@@ -28,6 +28,10 @@ test *args='':
 test-cov:
     uv run pytest --cov=countdown --cov=tests --cov-report=term-missing --cov-report=html
 
+# Run tests across all Python versions in parallel
+test-all:
+    uvx nox -p -s tests
+
 # Bump version (usage: just bump-version patch|minor|major)
 bump value:
     uv version --bump {{ value }}
