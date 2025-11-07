@@ -52,26 +52,23 @@ jobs:
       - name: Build package
         run: |
           uv build
-          echo "Built packages:"
-          ls -lh dist/
-          echo "Checking wheel contents:"
-          python -m zipfile -l dist/*.whl
-          echo "Extracting and checking METADATA file:"
-          python -m zipfile -e dist/*.whl /tmp/wheel_check
-          find /tmp/wheel_check -name METADATA -exec cat {} \; | head -30
 
       - name: Publish package on PyPI
         if: steps.check-version.outputs.tag
-        uses: pypa/gh-action-pypi-publish@v1.12.2
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_TOKEN }}
+          verbose: true
+          print-hash: true
 
       - name: Publish package on TestPyPI
         if: "! steps.check-version.outputs.tag"
-        uses: pypa/gh-action-pypi-publish@v1.12.2
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
+          verbose: true
+          print-hash: true
 
       - name: Publish the release notes
         uses: release-drafter/release-drafter@v5.18.1
