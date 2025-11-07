@@ -2,7 +2,7 @@
 
 import os
 import re
-from textwrap import dedent, indent
+from textwrap import dedent
 
 import pytest
 from click.testing import CliRunner
@@ -21,6 +21,16 @@ class FakeSleep:
         self.slept += seconds
         if self.slept in self.raises:
             raise self.raises[self.slept]
+
+
+def fake_size(
+    columns,
+    lines,
+):
+    def get_terminal_size(fallback=(columns, lines)):
+        return os.terminal_size(fallback)
+
+    return get_terminal_size
 
 
 def clean_main_output(output):
@@ -168,16 +178,6 @@ def test_get_number_lines_3478(monkeypatch):
         ██████ ██████        ██    ████
     """
     ).strip("\n")
-
-
-def fake_size(
-    columns,
-    lines,
-):
-    def get_terminal_size(fallback=(columns, lines)):
-        return os.terminal_size(fallback)
-
-    return get_terminal_size
 
 
 def test_print_full_screen_tiny_terminal(
@@ -525,16 +525,22 @@ def test_width_constraints_force_smaller_size(monkeypatch):
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(56, 20))
     chars = __main__.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
-    assert height == 5, "56x20 terminal too narrow for size 7, should select size 5"
+    assert height == 5, (
+        "56x20 terminal too narrow for size 7, should select size 5"
+    )
 
     # Size 5 requires 33 width - a 32x10 terminal should select size 3 instead
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(32, 10))
     chars = __main__.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
-    assert height == 3, "32x10 terminal too narrow for size 5, should select size 3"
+    assert height == 3, (
+        "32x10 terminal too narrow for size 5, should select size 3"
+    )
 
     # Size 3 requires 20 width - a 19x5 terminal should select size 1 instead
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(19, 5))
     chars = __main__.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
-    assert height == 1, "19x5 terminal too narrow for size 3, should select size 1"
+    assert height == 1, (
+        "19x5 terminal too narrow for size 3, should select size 1"
+    )
