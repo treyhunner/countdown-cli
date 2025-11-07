@@ -46,10 +46,19 @@ jobs:
           dev_version="${major}.${minor}.${new_patch}.dev$(date +%s)"
           sed -i "s/^version = .*/version = \"$dev_version\"/" pyproject.toml
           echo "Bumped version from $current_version to $dev_version"
+          echo "Current pyproject.toml version line:"
+          grep '^version =' pyproject.toml
 
       - name: Build package
         run: |
           uv build
+          echo "Built packages:"
+          ls -lh dist/
+          echo "Checking wheel contents:"
+          python -m zipfile -l dist/*.whl
+          echo "Extracting and checking METADATA file:"
+          python -m zipfile -e dist/*.whl /tmp/wheel_check
+          find /tmp/wheel_check -name METADATA -exec cat {} \; | head -30
 
       - name: Publish package on PyPI
         if: steps.check-version.outputs.tag
