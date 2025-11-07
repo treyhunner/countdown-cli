@@ -35,14 +35,17 @@ jobs:
         uses: salsify/action-detect-and-tag-new-version@v2.0.1
         with:
           version-command: |
-            bash -o pipefail -c "uv version | awk '{ print \$2 }'"
+            bash -o pipefail -c "grep '^version =' pyproject.toml | awk -F '\"' '{ print \$2 }'"
 
       - name: Bump version for developmental release
         if: "! steps.check-version.outputs.tag"
         run: |
-          uv version --bump patch &&
-          version=$(uv version | awk '{ print $2 }') &&
-          uv version "$version.dev$(date +%s)"
+          current_version=$(grep '^version =' pyproject.toml | awk -F '"' '{ print $2 }')
+          IFS='.' read -r major minor patch <<< "$current_version"
+          new_patch=$((patch + 1))
+          dev_version="${major}.${minor}.${new_patch}.dev$(date +%s)"
+          sed -i "s/^version = .*/version = \"$dev_version\"/" pyproject.toml
+          echo "Bumped version from $current_version to $dev_version"
 
       - name: Build package
         run: |
