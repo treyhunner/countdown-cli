@@ -7,6 +7,7 @@ import time
 
 import click
 
+from .digits import CHARS_BY_SIZE, DIGIT_SIZES
 
 ENABLE_ALT_BUFFER = "\033[?1049h"
 DISABLE_ALT_BUFFER = "\033[?1049l"
@@ -29,20 +30,28 @@ DURATION_RE = re.compile(
     re.VERBOSE,
 )
 
-CHARS = {
-    "0": "██████\n██  ██\n██  ██\n██  ██\n██████",
-    "1": "   ██ \n  ███ \n   ██ \n   ██ \n   ██ ",
-    "2": "██████\n    ██\n██████\n██    \n██████",
-    "3": "██████\n    ██\n █████\n    ██\n██████",
-    "4": "██  ██\n██  ██\n██████\n    ██\n    ██",
-    "5": "██████\n██    \n██████\n    ██\n██████",
-    "6": "██████\n██    \n██████\n██  ██\n██████",
-    "7": "██████\n    ██\n   ██ \n  ██  \n  ██  ",
-    "8": " ████ \n██  ██\n ████ \n██  ██\n ████ ",
-    "9": "██████\n██  ██\n██████\n    ██\n █████",
-    ":": "  \n██\n  \n██\n  ",
-}
 CLEAR = "\033[H\033[J"
+
+
+def get_required_width(chars):
+    """Calculate the minimum width required to display MM:SS format."""
+    # MM:SS format has 4 digits, 1 colon, and 1 space after each char
+    digit_width = max(len(line) for line in chars["0"].splitlines())
+    colon_width = max(len(line) for line in chars[":"].splitlines())
+    # Total: 4 digits + 1 colon + 5 spaces (after each character)
+    return digit_width * 4 + colon_width + 5
+
+
+def get_chars_for_terminal():
+    """Return the largest CHARS dictionary that fits in the current terminal."""
+    width, height = shutil.get_terminal_size()
+    for size in DIGIT_SIZES:
+        chars = CHARS_BY_SIZE[size]
+        required_width = get_required_width(chars)
+        if size <= height and required_width <= width:
+            return chars
+    # If terminal is too small, return the smallest available
+    return CHARS_BY_SIZE[min(DIGIT_SIZES)]
 
 
 def duration(string):
@@ -104,19 +113,21 @@ def print_full_screen(lines):
     """Print the given lines centered in the middle of the terminal window."""
     width, height = shutil.get_terminal_size()
     width -= max(len(line) for line in lines)
-    height -= len(lines) + 2
+    height -= len(lines)
     vertical_pad = "\n" * (height // 2)
     padded_text = "\n".join(" " * (width // 2) + line for line in lines)
-    print(CLEAR + vertical_pad + padded_text, flush=True)
+    print(CLEAR + vertical_pad + padded_text, flush=True, end="")
 
 
 def get_number_lines(seconds):
     """Return list of lines which make large MM:SS glyphs for given seconds."""
-    lines = [""] * 5
+    chars = get_chars_for_terminal()
+    digit_height = len(next(iter(chars.values())).splitlines())
+    lines = [""] * digit_height
     minutes, seconds = divmod(seconds, 60)
     time = f"{minutes:02d}:{seconds:02d}"
     for char in time:
-        char_lines = CHARS[char].splitlines()
+        char_lines = chars[char].splitlines()
         for i, line in enumerate(char_lines):
             lines[i] += line + " "
     return lines

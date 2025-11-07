@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-
 project = "countdown"
 author = "Trey Hunner"
 copyright = f"{datetime.now().year}, {author}"
