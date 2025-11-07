@@ -11,7 +11,12 @@ def pytest_assertrepr_compare(
     left,
     right,
 ):  # pragma: nocover
-    if isinstance(left, str) and isinstance(right, str) and "█" in right and op == "==":
+    if (
+        isinstance(left, str)
+        and isinstance(right, str)
+        and "█" in right
+        and op == "=="
+    ):
         return [
             "Big number string comparison doesn't match",
             "Got:",
