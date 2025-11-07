@@ -69,7 +69,7 @@ Features
 Requirements
 ------------
 
-* Python 3.7+
+* Python 3.10+
 
 
 Installation
@@ -103,17 +103,10 @@ If you encounter any problems,
 please `file an issue`_ along with a detailed description.
 
 
-Credits
--------
-
-This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter`_ template.
-
 .. _Python Morsels: https://www.pythonmorsels.com
-.. _@cjolowicz: https://github.com/cjolowicz
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _PyPI: https://pypi.org/project/countdown-cli/
-.. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
 .. _file an issue: https://github.com/treyhunner/countdown-cli/issues
 .. _pip: https://pip.pypa.io/
 .. github-only

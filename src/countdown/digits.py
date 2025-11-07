@@ -36,7 +36,6 @@ def populate_constants():
     for group in number_types:
         columns = transpose(group)
         numbers = ["\n".join(transpose(p)) for p in paragraphs(columns)]
-        print("group")
         heights = [len(n.splitlines()) for n in numbers]
         widths = [max(len(line) for line in n.splitlines()) for n in numbers]
         max_width = max(widths)
