@@ -85,8 +85,8 @@ def test_duration_2_minutes_and_8_seconds():
 
 
 def test_get_number_lines_10_seconds(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits (33w <= 40, 5h <= 6)
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits (33w <= 40, 5h+2 padding <= 7)
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(10)) == dedent(
         """
         ██████ ██████        ██   ██████
@@ -99,8 +99,8 @@ def test_get_number_lines_10_seconds(monkeypatch):
 
 
 def test_get_number_lines_60_seconds(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(60)) == dedent(
         """
         ██████   ██        ██████ ██████
@@ -113,8 +113,8 @@ def test_get_number_lines_60_seconds(monkeypatch):
 
 
 def test_get_number_lines_45_minutes(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(2700)) == dedent(
         """
         ██  ██ ██████      ██████ ██████
@@ -127,8 +127,8 @@ def test_get_number_lines_45_minutes(monkeypatch):
 
 
 def test_get_number_lines_17_minutes_and_four_seconds(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(1024)) == (
         "  ██   ██████      ██████ ██  ██\n"
         " ███       ██  ██  ██  ██ ██  ██\n"
@@ -139,8 +139,8 @@ def test_get_number_lines_17_minutes_and_four_seconds(monkeypatch):
 
 
 def test_get_number_lines_8_minutes_and_6_seconds(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(486)) == dedent(
         """
         ██████  ████       ██████ ██████
@@ -153,8 +153,8 @@ def test_get_number_lines_8_minutes_and_6_seconds(monkeypatch):
 
 
 def test_get_number_lines_9_minutes(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(540)) == dedent(
         """
         ██████ ██████      ██████ ██████
@@ -167,8 +167,8 @@ def test_get_number_lines_9_minutes(monkeypatch):
 
 
 def test_get_number_lines_3478(monkeypatch):
-    # Use 40x6 terminal to select size 5 digits
-    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 6))
+    # Use 40x7 terminal to select size 5 digits
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 7))
     assert join_lines(__main__.get_number_lines(2118)) == dedent(
         """
         ██████ ██████        ██    ████
@@ -257,7 +257,7 @@ def test_main_3_seconds_sleeps_4_times(
     runner,
     monkeypatch,
 ):
-    # Use 40x20 terminal to select size 5 digits (33w <= 40, 5h <= 20)
+    # Use 40x20 terminal to select size 5 digits (33w <= 40, 5h+2 <= 20)
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 20))
     fake_sleep = FakeSleep()
     monkeypatch.setattr("time.sleep", fake_sleep)
@@ -289,14 +289,16 @@ def test_main_3_seconds_sleeps_4_times(
         "   ██  ██ ██  ██  ██  ██  ██ ██  ██\n"
         "   ██████ ██████      ██████ ██████ "
     )
-    assert fake_sleep.slept == 4  # 3 seconds = 4 sleeps
+    # 3 seconds countdown = 4 iterations (3,2,1,0), each sleeps 1 second = 4 seconds total
+    # Sleeping in chunks of 0.05, so total is ~4 seconds (floating point precision)
+    assert fake_sleep.slept == pytest.approx(4.0, abs=0.01)
 
 
 def test_main_1_minute(
     runner,
     monkeypatch,
 ):
-    # Use 40x10 terminal to select size 5 digits (33w <= 40, 5h <= 10)
+    # Use 40x10 terminal to select size 5 digits (33w <= 40, 5h+2 <= 10)
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 10))
 
     # Raise exception after 11 sleeps
@@ -412,7 +414,7 @@ def test_main_early_exit_still_shows_cursor_at_end(
     runner,
     monkeypatch,
 ):
-    # Use 40x10 terminal to select size 5 digits (33w <= 40, 5h <= 10)
+    # Use 40x10 terminal to select size 5 digits (33w <= 40, 5h+2 <= 10)
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 10))
 
     # Hit Ctrl+C after 4 seconds

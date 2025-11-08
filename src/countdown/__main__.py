@@ -48,7 +48,10 @@ def get_chars_for_terminal():
     for size in DIGIT_SIZES:
         chars = CHARS_BY_SIZE[size]
         required_width = get_required_width(chars)
-        if size <= height and required_width <= width:
+        # For size 3 (smallest multi-line), allow it without padding
+        # For larger sizes, require 1 line of padding on top and bottom (2 total)
+        padding_needed = 0 if size == 3 else 2
+        if size + padding_needed <= height and required_width <= width:
             return chars
     # If terminal is too small, return the smallest available
     return CHARS_BY_SIZE[min(DIGIT_SIZES)]
