@@ -30,8 +30,8 @@ def center(text, width):
 
 
 def populate_constants():
-    """Populate CHARS_BY_SIZE and DIGIT_SIZES to contain the numbers in numbers.txt."""
-    lines = files("countdown").joinpath("numbers.txt").read_text(encoding="utf-8").splitlines()
+    """Populate CHARS_BY_SIZE and DIGIT_SIZES from glyphs.txt."""
+    lines = files("countdown").joinpath("glyphs.txt").read_text(encoding="utf-8").splitlines()
     number_types = list(paragraphs(lines))
     for group in number_types:
         columns = transpose(group)
