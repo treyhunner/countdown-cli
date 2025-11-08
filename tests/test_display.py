@@ -138,7 +138,8 @@ def test_char_heights_match_size():
 
 def test_get_chars_for_terminal_selects_largest_that_fits(monkeypatch):
     """Test that get_chars_for_terminal selects the largest size that fits both dimensions."""
-    # Size requirements: 16(93w), 7(57w), 5(33w), 3(20w), 1(10w)
+    # Size requirements for displaying 00:00:
+    # 16(93w), 7(57w), 5(33w), 3(20w), 1(10w)
 
     # 80x24 terminal - size 7 fits (57w <= 80, 7h <= 24)
     monkeypatch.setattr("shutil.get_terminal_size", fake_size(80, 24))
@@ -219,3 +220,15 @@ def test_width_constraints_force_smaller_size(monkeypatch):
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
     assert height == 1, "19x5 terminal too narrow for size 3, should select size 1"
+
+
+def test_three_digit_minutes_force_smaller_chars(monkeypatch):
+    """Wide minute values should fall back to smaller glyphs if needed."""
+    # 60x20 terminal can show size 7 for two-digit minutes
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(60, 20))
+    chars = display.get_chars_for_terminal(0)
+    assert len(chars["0"].splitlines()) == 7
+
+    # But 100 minutes needs 70 columns at size 7, so we should drop to size 5
+    chars = display.get_chars_for_terminal(6000)  # 100 minutes
+    assert len(chars["0"].splitlines()) == 5

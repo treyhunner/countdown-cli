@@ -35,21 +35,34 @@ def enable_ansi_escape_codes():  # pragma: no cover
         )
 
 
-def get_required_width(chars):
-    """Calculate the minimum width required to display MM:SS format."""
-    # MM:SS format has 4 digits, 1 colon, and 1 space after each char
-    digit_width = max(len(line) for line in chars["0"].splitlines())
-    colon_width = max(len(line) for line in chars[":"].splitlines())
-    # Total: 4 digits + 1 colon + 5 spaces (after each character)
-    return digit_width * 4 + colon_width + 5
+def _format_time_string(seconds):
+    """Return the MM:SS string used for display based on seconds."""
+    seconds = max(0, int(seconds))
+    minutes, seconds = divmod(seconds, 60)
+    return f"{minutes:02d}:{seconds:02d}"
 
 
-def get_chars_for_terminal():
-    """Return the largest CHARS dictionary that fits in the current terminal."""
+def get_required_width(chars, time_string):
+    """Calculate the minimum width required to display the given time string."""
+    char_widths = {
+        char: max(len(line) for line in glyph.splitlines())
+        for char, glyph in chars.items()
+    }
+    # Each character in the timer output has a trailing space appended
+    return sum(char_widths[char] + 1 for char in time_string)
+
+
+def get_chars_for_terminal(seconds=0):
+    """Return the largest CHARS dictionary that fits in the current terminal.
+
+    Args:
+        seconds: Current countdown value, used to account for wide minute values.
+    """
     width, height = shutil.get_terminal_size()
+    time_string = _format_time_string(seconds)
     for size in DIGIT_SIZES:
         chars = CHARS_BY_SIZE[size]
-        required_width = get_required_width(chars)
+        required_width = get_required_width(chars, time_string)
         # For size 3 (smallest multi-line), allow it without padding
         # For larger sizes, require 1 line of padding on top and bottom (2 total)
         padding_needed = 0 if size == 3 else 2
