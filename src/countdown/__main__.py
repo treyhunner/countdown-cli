@@ -74,6 +74,26 @@ def is_pause_key(key):
     return key in (" ", "p", "k", "\r", "\n")
 
 
+def is_time_adjust_key(key):
+    """Check if the given key is a time adjustment key (+, =, -)."""
+    # Handle both bytes (Windows) and strings (Unix)
+    if isinstance(key, bytes):
+        key = key.decode("utf-8", errors="ignore")
+    return key in ("+", "=", "-")
+
+
+def get_time_adjustment(key):
+    """Return the time adjustment in seconds for the given key."""
+    # Handle both bytes (Windows) and strings (Unix)
+    if isinstance(key, bytes):
+        key = key.decode("utf-8", errors="ignore")
+    if key in ("+", "="):
+        return 30  # Add 30 seconds
+    elif key == "-":
+        return -30  # Subtract 30 seconds
+    return 0
+
+
 def setup_terminal():  # pragma: no cover
     """Setup terminal for non-blocking input (Unix only)."""
     if sys.platform != "win32" and sys.stdin.isatty():
@@ -143,6 +163,7 @@ def main(duration):
     - 2m30s (2 minutes and 30 seconds)
 
     Press Space, p, k, or Enter to pause/resume the countdown.
+    Press +/= to add 30 seconds, - to subtract 30 seconds.
     """  # noqa: D301
     enable_ansi_escape_codes()
     old_settings = setup_terminal()
@@ -154,11 +175,18 @@ def main(duration):
             lines = get_number_lines(n)
             print_full_screen(lines, paused=paused)
 
-            # Check for keypress to toggle pause
+            # Check for keypress to toggle pause or adjust time
             if check_for_keypress():
                 key = read_key()  # Consume the keypress
                 if is_pause_key(key):
                     paused = not paused
+                    drain_keypresses()  # Ignore any additional rapid keypresses
+                    lines = get_number_lines(n)
+                    print_full_screen(lines, paused=paused)
+                elif is_time_adjust_key(key):
+                    # Adjust the timer by +/- 30 seconds
+                    adjustment = get_time_adjustment(key)
+                    n = max(0, n + adjustment)  # Don't go below 0
                     drain_keypresses()  # Ignore any additional rapid keypresses
                     lines = get_number_lines(n)
                     print_full_screen(lines, paused=paused)

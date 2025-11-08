@@ -824,3 +824,153 @@ def test_resume_from_pause_exits_early(
 
     assert len(paused_sleeps) > 0, "Should have some paused sleep periods"
     assert len(unpaused_sleeps) > 0, "Should have some unpaused sleep periods"
+
+
+def test_is_time_adjust_key_with_strings():
+    """Test that is_time_adjust_key recognizes +, =, - as strings (Unix)."""
+    assert __main__.is_time_adjust_key('+') is True, "+ should be a time adjust key"
+    assert __main__.is_time_adjust_key('=') is True, "= should be a time adjust key"
+    assert __main__.is_time_adjust_key('-') is True, "- should be a time adjust key"
+    assert __main__.is_time_adjust_key('a') is False, "a should not be a time adjust key"
+    assert __main__.is_time_adjust_key(' ') is False, "space should not be a time adjust key"
+
+
+def test_is_time_adjust_key_with_bytes():
+    """Test that is_time_adjust_key recognizes +, =, - as bytes (Windows)."""
+    assert __main__.is_time_adjust_key(b'+') is True, "+ as bytes should be a time adjust key"
+    assert __main__.is_time_adjust_key(b'=') is True, "= as bytes should be a time adjust key"
+    assert __main__.is_time_adjust_key(b'-') is True, "- as bytes should be a time adjust key"
+    assert __main__.is_time_adjust_key(b'a') is False, "a as bytes should not be a time adjust key"
+
+
+def test_get_time_adjustment():
+    """Test that get_time_adjustment returns correct values."""
+    assert __main__.get_time_adjustment('+') == 30, "+ should add 30 seconds"
+    assert __main__.get_time_adjustment('=') == 30, "= should add 30 seconds"
+    assert __main__.get_time_adjustment('-') == -30, "- should subtract 30 seconds"
+    assert __main__.get_time_adjustment('a') == 0, "non-adjust key should return 0"
+    # Test with bytes
+    assert __main__.get_time_adjustment(b'+') == 30, "+ as bytes should add 30 seconds"
+    assert __main__.get_time_adjustment(b'=') == 30, "= as bytes should add 30 seconds"
+    assert __main__.get_time_adjustment(b'-') == -30, "- as bytes should subtract 30 seconds"
+
+
+def test_add_time_with_plus_key(
+    runner,
+    monkeypatch,
+):
+    """Test that pressing + adds 30 seconds to the timer."""
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 20))
+
+    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
+    monkeypatch.setattr("time.sleep", fake_sleep)
+
+    # Track the displayed times
+    displayed_times = []
+    original_get_number_lines = __main__.get_number_lines
+
+    def fake_get_number_lines(seconds):
+        displayed_times.append(seconds)
+        return original_get_number_lines(seconds)
+
+    def fake_check_for_keypress():
+        # Return True once to simulate a keypress
+        return len(displayed_times) == 1
+
+    def fake_read_key():
+        return '+'  # Plus key to add time
+
+    def fake_drain():
+        pass
+
+    monkeypatch.setattr(__main__, "get_number_lines", fake_get_number_lines)
+    monkeypatch.setattr(__main__, "check_for_keypress", fake_check_for_keypress)
+    monkeypatch.setattr(__main__, "read_key", fake_read_key)
+    monkeypatch.setattr(__main__, "drain_keypresses", fake_drain)
+
+    result = runner.invoke(__main__.main, ["1m"])
+
+    # Should have displayed 60s initially, then 90s after pressing +
+    assert 60 in displayed_times, "Should display initial time of 60s"
+    assert 90 in displayed_times, "Should display 90s after adding 30s"
+
+
+def test_subtract_time_with_minus_key(
+    runner,
+    monkeypatch,
+):
+    """Test that pressing - subtracts 30 seconds from the timer."""
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 20))
+
+    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
+    monkeypatch.setattr("time.sleep", fake_sleep)
+
+    # Track the displayed times
+    displayed_times = []
+    original_get_number_lines = __main__.get_number_lines
+
+    def fake_get_number_lines(seconds):
+        displayed_times.append(seconds)
+        return original_get_number_lines(seconds)
+
+    def fake_check_for_keypress():
+        # Return True once to simulate a keypress
+        return len(displayed_times) == 1
+
+    def fake_read_key():
+        return '-'  # Minus key to subtract time
+
+    def fake_drain():
+        pass
+
+    monkeypatch.setattr(__main__, "get_number_lines", fake_get_number_lines)
+    monkeypatch.setattr(__main__, "check_for_keypress", fake_check_for_keypress)
+    monkeypatch.setattr(__main__, "read_key", fake_read_key)
+    monkeypatch.setattr(__main__, "drain_keypresses", fake_drain)
+
+    result = runner.invoke(__main__.main, ["1m"])
+
+    # Should have displayed 60s initially, then 30s after pressing -
+    assert 60 in displayed_times, "Should display initial time of 60s"
+    assert 30 in displayed_times, "Should display 30s after subtracting 30s"
+
+
+def test_subtract_time_cannot_go_negative(
+    runner,
+    monkeypatch,
+):
+    """Test that subtracting time stops at 0 (cannot go negative)."""
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 20))
+
+    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
+    monkeypatch.setattr("time.sleep", fake_sleep)
+
+    # Track the displayed times
+    displayed_times = []
+    original_get_number_lines = __main__.get_number_lines
+
+    def fake_get_number_lines(seconds):
+        displayed_times.append(seconds)
+        return original_get_number_lines(seconds)
+
+    def fake_check_for_keypress():
+        # Return True once to simulate a keypress
+        return len(displayed_times) == 1
+
+    def fake_read_key():
+        return '-'  # Minus key to subtract time
+
+    def fake_drain():
+        pass
+
+    monkeypatch.setattr(__main__, "get_number_lines", fake_get_number_lines)
+    monkeypatch.setattr(__main__, "check_for_keypress", fake_check_for_keypress)
+    monkeypatch.setattr(__main__, "read_key", fake_read_key)
+    monkeypatch.setattr(__main__, "drain_keypresses", fake_drain)
+
+    result = runner.invoke(__main__.main, ["10s"])
+
+    # Should have displayed 10s initially, then 0s (not -20s) after pressing -
+    assert 10 in displayed_times, "Should display initial time of 10s"
+    assert 0 in displayed_times, "Should display 0s (not negative) after subtracting 30s"
+    assert all(t >= 0 for t in displayed_times), "All displayed times should be non-negative"
