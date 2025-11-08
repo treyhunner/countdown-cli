@@ -26,7 +26,7 @@ from .terminal import (
 
 def get_number_lines(seconds):
     """Return list of lines which make large MM:SS glyphs for given seconds."""
-    return timer.get_number_lines(seconds, get_chars_for_terminal())
+    return timer.get_number_lines(seconds, get_chars_for_terminal(seconds))
 
 
 def run_countdown(total_seconds):

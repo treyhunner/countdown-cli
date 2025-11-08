@@ -34,6 +34,10 @@ def test_duration_10_minutes():
     assert timer.duration("10m") == 600
 
 
+def test_duration_150_minutes():
+    assert timer.duration("150m") == 9000
+
+
 def test_duration_25_minutes():
     assert timer.duration("25m") == 1500
 
@@ -86,6 +90,18 @@ def test_get_number_lines_45_minutes():
             ██ ██████      ██████ ██████
     """
     ).strip("\n")
+
+
+def test_get_number_lines_101_minutes():
+    # Use size 5 digits
+    chars = CHARS_BY_SIZE[5]
+    assert join_lines(timer.get_number_lines(6060, chars)) == (
+        "  ██   ██████   ██        ██████ ██████\n"
+        " ███   ██  ██  ███    ██  ██  ██ ██  ██\n"
+        "  ██   ██  ██   ██        ██  ██ ██  ██\n"
+        "  ██   ██  ██   ██    ██  ██  ██ ██  ██\n"
+        "  ██   ██████   ██        ██████ ██████"
+    )
 
 
 def test_get_number_lines_17_minutes_and_four_seconds():
