@@ -37,7 +37,9 @@ jobs:
         with:
           name: Packages
           path: dist
-      - run: tar xf dist/*.tar.gz --strip-components=1
+      - name: Extract source tarball
+        shell: bash
+        run: tar xf dist/*.tar.gz --strip-components=1
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
