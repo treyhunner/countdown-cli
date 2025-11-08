@@ -17,7 +17,10 @@ def fake_size(columns, lines):
 
 
 def test_print_full_screen_tiny_terminal(capsys, monkeypatch):
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(40, 10))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(40, 10),
+    )
     display.print_full_screen(["hello world"])
     out, err = capsys.readouterr()
     assert out[:6] == "\x1b[H\x1b[J"
@@ -25,7 +28,10 @@ def test_print_full_screen_tiny_terminal(capsys, monkeypatch):
 
 
 def test_print_full_screen_larger_terminal(capsys, monkeypatch):
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(80, 24))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(80, 24),
+    )
     display.print_full_screen(["hello world"])
     out, err = capsys.readouterr()
     assert out[:6] == "\x1b[H\x1b[J"
@@ -35,7 +41,10 @@ def test_print_full_screen_larger_terminal(capsys, monkeypatch):
 
 
 def test_print_full_screen_multiline_text(capsys, monkeypatch):
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(100, 30))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(100, 30),
+    )
     display.print_full_screen(
         dedent(
             """\
@@ -61,14 +70,17 @@ def test_print_full_screen_multiline_text(capsys, monkeypatch):
 
 def test_print_full_screen_paused_shows_red_and_message(capsys, monkeypatch):
     """Test that paused=True shows colored timer and PAUSED message."""
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(80, 24))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(80, 24),
+    )
     lines = ["00:05"]
     display.print_full_screen(lines, paused=True)
     out, err = capsys.readouterr()
     # Should contain intense magenta color code
-    assert (
-        "\x1b[95m" in out
-    ), "Should contain intense magenta color code when paused"
+    assert "\x1b[95m" in out, (
+        "Should contain intense magenta color code when paused"
+    )
     # Should contain reset code
     assert "\033[0m" in out, "Should contain color reset code"
     # Should contain PAUSED message
@@ -77,7 +89,10 @@ def test_print_full_screen_paused_shows_red_and_message(capsys, monkeypatch):
 
 def test_print_full_screen_not_paused_no_red_or_message(capsys, monkeypatch):
     """Test that paused=False shows normal timer without PAUSED message."""
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(80, 24))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(80, 24),
+    )
     lines = ["00:05"]
     display.print_full_screen(lines, paused=False)
     out, err = capsys.readouterr()
@@ -95,11 +110,13 @@ def test_print_full_screen_paused_tiny_terminal_no_message(capsys, monkeypatch):
     display.print_full_screen(lines, paused=True)
     out, err = capsys.readouterr()
     # Should still show intense magenta color
-    assert (
-        "\x1b[95m" in out
-    ), "Should contain intense magenta color code when paused"
+    assert "\x1b[95m" in out, (
+        "Should contain intense magenta color code when paused"
+    )
     # Should NOT show PAUSED message (no room)
-    assert "PAUSED" not in out, "PAUSED message should not appear in tiny terminal"
+    assert "PAUSED" not in out, (
+        "PAUSED message should not appear in tiny terminal"
+    )
 
 
 def test_digit_sizes_available():
@@ -142,25 +159,37 @@ def test_get_chars_for_terminal_selects_largest_that_fits(monkeypatch):
     # 16(93w), 7(57w), 5(33w), 3(20w), 1(10w)
 
     # 80x24 terminal - size 7 fits (57w <= 80, 7h <= 24)
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(80, 24))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(80, 24),
+    )
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
     assert height == 7, "80x24 terminal should select size 7"
 
     # 100x24 terminal - size 16 fits (93w <= 100, 16h <= 24)
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(100, 24))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(100, 24),
+    )
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
     assert height == 16, "100x24 terminal should select size 16"
 
     # 60x20 terminal - size 7 fits (57w <= 60, 7h <= 20)
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(60, 20))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(60, 20),
+    )
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
     assert height == 7, "60x20 terminal should select size 7"
 
     # 32x10 terminal - size 3 fits (20w <= 32, 3h <= 10)
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(32, 10))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(32, 10),
+    )
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
     assert height == 3, "32x10 terminal should select size 3"
@@ -183,13 +212,19 @@ def test_different_sizes_render_correctly(monkeypatch):
     from countdown import timer
 
     # Test size 7 rendering (80x24 selects size 7)
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(80, 24))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(80, 24),
+    )
     chars = display.get_chars_for_terminal()
     lines = timer.get_number_lines(0, chars)  # 00:00
     assert len(lines) == 7, "80x24 terminal should render 7 lines"
 
     # Test size 3 rendering (32x10 selects size 3)
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(32, 10))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(32, 10),
+    )
     chars = display.get_chars_for_terminal()
     lines = timer.get_number_lines(0, chars)  # 00:00
     assert len(lines) == 3, "32x10 terminal should render 3 lines"
@@ -204,28 +239,43 @@ def test_different_sizes_render_correctly(monkeypatch):
 def test_width_constraints_force_smaller_size(monkeypatch):
     """Test that narrow terminal widths force selection of smaller digit sizes."""
     # Size 7 requires 57 width - a 56x20 terminal should select size 5 instead
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(56, 20))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(56, 20),
+    )
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
-    assert height == 5, "56x20 terminal too narrow for size 7, should select size 5"
+    assert height == 5, (
+        "56x20 terminal too narrow for size 7, should select size 5"
+    )
 
     # Size 5 requires 33 width - a 32x10 terminal should select size 3 instead
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(32, 10))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(32, 10),
+    )
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
-    assert height == 3, "32x10 terminal too narrow for size 5, should select size 3"
+    assert height == 3, (
+        "32x10 terminal too narrow for size 5, should select size 3"
+    )
 
     # Size 3 requires 20 width - a 19x5 terminal should select size 1 instead
     monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(19, 5))
     chars = display.get_chars_for_terminal()
     height = len(chars["0"].splitlines())
-    assert height == 1, "19x5 terminal too narrow for size 3, should select size 1"
+    assert height == 1, (
+        "19x5 terminal too narrow for size 3, should select size 1"
+    )
 
 
 def test_three_digit_minutes_force_smaller_chars(monkeypatch):
     """Wide minute values should fall back to smaller glyphs if needed."""
     # 60x20 terminal can show size 7 for two-digit minutes
-    monkeypatch.setattr("countdown.display.get_terminal_size", fake_size(60, 20))
+    monkeypatch.setattr(
+        "countdown.display.get_terminal_size",
+        fake_size(60, 20),
+    )
     chars = display.get_chars_for_terminal(0)
     assert len(chars["0"].splitlines()) == 7
 
