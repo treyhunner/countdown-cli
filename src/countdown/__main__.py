@@ -1,6 +1,6 @@
 """Command-line interface."""
 
-import time
+from time import sleep
 
 import click
 
@@ -69,13 +69,13 @@ def run_countdown(total_seconds):
             if not paused:
                 # Sleep in small chunks to check for keypresses more frequently
                 for _ in range(20):  # 20 x 0.05 = 1 second
-                    time.sleep(0.05)
+                    sleep(0.05)
                     if check_for_keypress():
                         break  # Exit sleep early if key is pressed
                 n -= 1
             else:
                 # Short sleep when paused for responsive keypress checking
-                time.sleep(0.05)
+                sleep(0.05)
     except KeyboardInterrupt:
         pass
     finally:

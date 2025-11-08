@@ -6,9 +6,9 @@ import sys
 if sys.platform == "win32":  # pragma: no cover
     import msvcrt
 else:  # pragma: no cover
-    import select
     import termios
     import tty
+    from select import select
 
 
 def check_for_keypress():  # pragma: no cover
@@ -18,7 +18,7 @@ def check_for_keypress():  # pragma: no cover
     if sys.platform == "win32":
         return msvcrt.kbhit()
     else:
-        return select.select([sys.stdin], [], [], 0)[0]
+        return select([sys.stdin], [], [], 0)[0]
 
 
 def read_key():  # pragma: no cover

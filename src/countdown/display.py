@@ -1,7 +1,7 @@
 """Visual rendering and ANSI terminal control."""
 
-import shutil
 import sys
+from shutil import get_terminal_size
 
 from .digits import CHARS_BY_SIZE, DIGIT_SIZES
 
@@ -58,7 +58,7 @@ def get_chars_for_terminal(seconds=0):
     Args:
         seconds: Current countdown value, used to account for wide minute values.
     """
-    width, height = shutil.get_terminal_size()
+    width, height = get_terminal_size()
     time_string = _format_time_string(seconds)
     for size in DIGIT_SIZES:
         chars = CHARS_BY_SIZE[size]
@@ -74,7 +74,7 @@ def get_chars_for_terminal(seconds=0):
 
 def print_full_screen(lines, paused=False):
     """Print the given lines centered in the middle of the terminal window."""
-    term_width, term_height = shutil.get_terminal_size()
+    term_width, term_height = get_terminal_size()
 
     # Calculate total content height
     content_height = len(lines)
