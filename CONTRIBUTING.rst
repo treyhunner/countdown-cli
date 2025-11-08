@@ -17,6 +17,8 @@ When filing an issue, make sure to answer these questions:
 The best way to get your bug fixed is to provide a test case,
 and/or steps to reproduce the issue.
 
+.. _Issue Tracker: https://github.com/treyhunner/countdown-cli/issues
+
 
 How to request a feature
 ------------------------
