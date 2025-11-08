@@ -56,6 +56,12 @@ Features
 - Pause/resume with ``p``, ``k``, ``Space``, or ``Enter``
 - Add / remove time with ``+`` or ``-``
 
+To start a timer:
+
+.. code:: console
+
+    countdown 6m30s
+
 |32:53|
 
 |14:57|
@@ -82,7 +88,7 @@ You can install **countdown-cli** via uv_ from PyPI_:
 
 .. code:: console
 
-   $ uv tool install countdown-cli
+   uv tool install countdown-cli
 
 
 Contributing

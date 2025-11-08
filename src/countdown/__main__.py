@@ -94,7 +94,7 @@ def main(ctx, duration):
 
     Examples of DURATION:
 
-    \\b
+    \b
     - 5m (5 minutes)
     - 45s (45 seconds)
     - 2m30s (2 minutes and 30 seconds)
