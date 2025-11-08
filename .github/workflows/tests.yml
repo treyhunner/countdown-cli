@@ -21,13 +21,14 @@ jobs:
       python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
 
   tests:
-    name: Tests on ${{ matrix.python-version }}
+    name: Tests on ${{ matrix.os }} - ${{ matrix.python-version }}
     needs: build-package
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ${{ fromJson(needs.build-package.outputs.python-versions) }}
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +37,9 @@ jobs:
         with:
           name: Packages
           path: dist
-      - run: tar xf dist/*.tar.gz --strip-components=1
+      - name: Extract source tarball
+        shell: bash
+        run: tar xf dist/*.tar.gz --strip-components=1
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
