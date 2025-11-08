@@ -50,8 +50,11 @@ Instead, try implementing this package with the `Python Morsels "countdown" exer
 Features
 --------
 
-* Full-screen countdown timer, centered in the terminal window
-* Command-line interface for Linux/Mac/Windows
+- Full-screen countdown timer, centered in the terminal window
+- Responsive timer size based on terminal window width/height
+- Command-line interface for Linux/Mac/Windows
+- Pause/resume with ``p``, ``k``, ``Space``, or ``Enter``
+- Add / remove time with ``+`` or ``-``
 
 |32:53|
 
@@ -69,13 +72,13 @@ Features
 Requirements
 ------------
 
-* Python 3.10+
+- Python 3.10+
 
 
 Installation
 ------------
 
-You can install *countdown-cli* via uv_ from PyPI_:
+You can install **countdown-cli** via uv_ from PyPI_:
 
 .. code:: console
 
@@ -93,7 +96,7 @@ License
 -------
 
 Distributed under the terms of the `MIT license`_,
-*countdown-cli* is free and open source software.
+**countdown-cli** is free and open source software.
 
 
 Issues
