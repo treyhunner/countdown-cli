@@ -235,17 +235,13 @@ def test_print_full_screen_multiline_text(
 
 
 def test_main_with_no_arguments(runner):
-    """It exits with a status code of zero."""
+    """It shows help when run without arguments."""
     result = runner.invoke(__main__.main)
-    assert result.output == dedent(
-        """\
-        Usage: main [OPTIONS] DURATION
-        Try 'main --help' for help.
-
-        Error: Missing argument 'DURATION'.
-    """
-    )
-    assert result.exit_code == 2
+    # Should show help (not error)
+    assert result.exit_code == 0
+    assert "Usage:" in result.output
+    assert "DURATION" in result.output
+    assert "5m" in result.output  # Should show examples
 
 
 def test_version_works(runner):
@@ -565,15 +561,6 @@ def test_is_pause_key_with_strings():
     assert __main__.is_pause_key('q') is False, "q should not be a pause key"
 
 
-def test_is_pause_key_with_bytes():
-    """Test that is_pause_key recognizes pause keys as bytes (Windows)."""
-    assert __main__.is_pause_key(b' ') is True, "Space as bytes should be a pause key"
-    assert __main__.is_pause_key(b'p') is True, "p as bytes should be a pause key"
-    assert __main__.is_pause_key(b'k') is True, "k as bytes should be a pause key"
-    assert __main__.is_pause_key(b'\r') is True, "CR as bytes should be a pause key"
-    assert __main__.is_pause_key(b'\n') is True, "LF as bytes should be a pause key"
-    assert __main__.is_pause_key(b'a') is False, "a as bytes should not be a pause key"
-    assert __main__.is_pause_key(b'x') is False, "x as bytes should not be a pause key"
 
 
 def test_print_full_screen_paused_shows_red_and_message(
@@ -835,24 +822,12 @@ def test_is_time_adjust_key_with_strings():
     assert __main__.is_time_adjust_key(' ') is False, "space should not be a time adjust key"
 
 
-def test_is_time_adjust_key_with_bytes():
-    """Test that is_time_adjust_key recognizes +, =, - as bytes (Windows)."""
-    assert __main__.is_time_adjust_key(b'+') is True, "+ as bytes should be a time adjust key"
-    assert __main__.is_time_adjust_key(b'=') is True, "= as bytes should be a time adjust key"
-    assert __main__.is_time_adjust_key(b'-') is True, "- as bytes should be a time adjust key"
-    assert __main__.is_time_adjust_key(b'a') is False, "a as bytes should not be a time adjust key"
-
-
 def test_get_time_adjustment():
     """Test that get_time_adjustment returns correct values."""
     assert __main__.get_time_adjustment('+') == 30, "+ should add 30 seconds"
     assert __main__.get_time_adjustment('=') == 30, "= should add 30 seconds"
     assert __main__.get_time_adjustment('-') == -30, "- should subtract 30 seconds"
     assert __main__.get_time_adjustment('a') == 0, "non-adjust key should return 0"
-    # Test with bytes
-    assert __main__.get_time_adjustment(b'+') == 30, "+ as bytes should add 30 seconds"
-    assert __main__.get_time_adjustment(b'=') == 30, "= as bytes should add 30 seconds"
-    assert __main__.get_time_adjustment(b'-') == -30, "- as bytes should subtract 30 seconds"
 
 
 def test_add_time_with_plus_key(
@@ -974,3 +949,47 @@ def test_subtract_time_cannot_go_negative(
     assert 10 in displayed_times, "Should display initial time of 10s"
     assert 0 in displayed_times, "Should display 0s (not negative) after subtracting 30s"
     assert all(t >= 0 for t in displayed_times), "All displayed times should be non-negative"
+
+
+def test_q_key_quits_timer(
+    runner,
+    monkeypatch,
+):
+    """Test that pressing 'q' exits the timer."""
+    monkeypatch.setattr("shutil.get_terminal_size", fake_size(40, 20))
+
+    fake_sleep = FakeSleep()
+    monkeypatch.setattr("time.sleep", fake_sleep)
+
+    keypress_count = [0]
+
+    def fake_check_for_keypress():
+        keypress_count[0] += 1
+        # Return True on first check to simulate pressing q
+        return keypress_count[0] == 1
+
+    def fake_read_key():
+        return 'q'  # Press q to quit
+
+    monkeypatch.setattr(__main__, "check_for_keypress", fake_check_for_keypress)
+    monkeypatch.setattr(__main__, "read_key", fake_read_key)
+
+    result = runner.invoke(__main__.main, ["10m"])
+
+    # Should exit cleanly with code 0
+    assert result.exit_code == 0
+    # Should have shown cursor and disabled alt buffer on exit
+    assert result.stdout.endswith("\033[?25h\033[?1049l")
+
+
+def test_no_arguments_shows_help(runner):
+    """Test that running without arguments shows help message."""
+    result = runner.invoke(__main__.main, [])
+
+    # Should exit with code 0 (not an error)
+    assert result.exit_code == 0
+    # Should show usage information
+    assert "Usage:" in result.output
+    assert "DURATION" in result.output
+    # Should show examples
+    assert "5m" in result.output or "Examples" in result.output

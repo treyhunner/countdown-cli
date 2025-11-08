@@ -55,7 +55,7 @@ def check_for_keypress():  # pragma: no cover
 def read_key():  # pragma: no cover
     """Read a single keypress."""
     if sys.platform == "win32":
-        return msvcrt.getch()
+        return msvcrt.getch().decode("utf-8", errors="ignore")
     else:
         return sys.stdin.read(1)
 
@@ -68,25 +68,16 @@ def drain_keypresses():  # pragma: no cover
 
 def is_pause_key(key):
     """Check if the given key is a pause/resume key (Space, p, k, Enter)."""
-    # Handle both bytes (Windows) and strings (Unix)
-    if isinstance(key, bytes):
-        key = key.decode("utf-8", errors="ignore")
     return key in (" ", "p", "k", "\r", "\n")
 
 
 def is_time_adjust_key(key):
     """Check if the given key is a time adjustment key (+, =, -)."""
-    # Handle both bytes (Windows) and strings (Unix)
-    if isinstance(key, bytes):
-        key = key.decode("utf-8", errors="ignore")
     return key in ("+", "=", "-")
 
 
 def get_time_adjustment(key):
     """Return the time adjustment in seconds for the given key."""
-    # Handle both bytes (Windows) and strings (Unix)
-    if isinstance(key, bytes):
-        key = key.decode("utf-8", errors="ignore")
     if key in ("+", "="):
         return 30  # Add 30 seconds
     elif key == "-":
@@ -149,8 +140,9 @@ def duration(string):
 
 @click.command()
 @click.version_option(package_name="countdown-cli")
-@click.argument("duration", type=duration)
-def main(duration):
+@click.argument("duration", type=duration, required=False)
+@click.pass_context
+def main(ctx, duration):
     """Countdown from the given duration to 0.
 
     DURATION should be a number followed by m or s for minutes or seconds.
@@ -163,8 +155,16 @@ def main(duration):
     - 2m30s (2 minutes and 30 seconds)
 
     Press Space, p, k, or Enter to pause/resume the countdown.
+
     Press +/= to add 30 seconds, - to subtract 30 seconds.
+
+    Press q to quit.
     """  # noqa: D301
+    # Show help if no duration provided
+    if duration is None:
+        click.echo(ctx.get_help())
+        return
+
     enable_ansi_escape_codes()
     old_settings = setup_terminal()
     print(ENABLE_ALT_BUFFER + HIDE_CURSOR, end="")
@@ -178,7 +178,11 @@ def main(duration):
             # Check for keypress to toggle pause or adjust time
             if check_for_keypress():
                 key = read_key()  # Consume the keypress
-                if is_pause_key(key):
+
+                if key == "q":
+                    # Quit the timer
+                    break
+                elif is_pause_key(key):
                     paused = not paused
                     drain_keypresses()  # Ignore any additional rapid keypresses
                     lines = get_number_lines(n)
