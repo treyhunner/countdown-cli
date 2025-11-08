@@ -75,11 +75,11 @@ Requirements
 Installation
 ------------
 
-You can install *countdown-cli* via pip_ from PyPI_:
+You can install *countdown-cli* via uv_ from PyPI_:
 
 .. code:: console
 
-   $ python3 -m pip install countdown-cli
+   $ uv tool install countdown-cli
 
 
 Contributing
@@ -104,10 +104,9 @@ please `file an issue`_ along with a detailed description.
 
 
 .. _Python Morsels: https://www.pythonmorsels.com
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _MIT license: https://opensource.org/licenses/MIT
 .. _PyPI: https://pypi.org/project/countdown-cli/
 .. _file an issue: https://github.com/treyhunner/countdown-cli/issues
-.. _pip: https://pip.pypa.io/
+.. _uv: https://docs.astral.sh/uv/concepts/tools/
 .. github-only
 .. _Contributor Guide: CONTRIBUTING.rst
