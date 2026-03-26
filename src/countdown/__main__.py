@@ -1,6 +1,6 @@
 """Command-line interface."""
 
-from time import sleep
+from time import sleep, time
 
 import click
 
@@ -41,7 +41,9 @@ def run_countdown(total_seconds):
     try:
         paused = False
         n = total_seconds
-        while n >= 0:
+        sleep_until = time() + total_seconds
+        pause_start = 0
+        while time() < sleep_until or paused:
             lines = get_number_lines(n)
             print_full_screen(lines, paused=paused)
 
@@ -53,6 +55,11 @@ def run_countdown(total_seconds):
                     # Quit the timer
                     break
                 elif is_pause_key(key):
+                    if paused:
+                        sleep_until += time() - pause_start
+                        pause_start = 0
+                    else:
+                        pause_start = time()
                     paused = not paused
                     drain_keypresses()  # Ignore any additional rapid keypresses
                     lines = get_number_lines(n)
@@ -60,6 +67,7 @@ def run_countdown(total_seconds):
                 elif is_time_adjust_key(key):
                     # Adjust the timer by +/- 30 seconds
                     adjustment = get_time_adjustment(key)
+                    sleep_until += adjustment
                     n = max(0, n + adjustment)  # Don't go below 0
                     drain_keypresses()  # Ignore any additional rapid keypresses
                     lines = get_number_lines(n)
@@ -67,8 +75,9 @@ def run_countdown(total_seconds):
 
             # Only sleep and decrement if not paused
             if not paused:
-                # Sleep in small chunks to check for keypresses more frequently
-                for _ in range(20):  # 20 x 0.05 = 1 second
+                display_this_second_until = sleep_until - n + 1
+                while time() < display_this_second_until:
+                    # Sleep in small chunks to check for keypresses more frequently
                     sleep(0.05)
                     if check_for_keypress():
                         break  # Exit sleep early if key is pressed
