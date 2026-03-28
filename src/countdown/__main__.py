@@ -43,7 +43,7 @@ def run_countdown(total_seconds):
         n = total_seconds
         sleep_until = time() + total_seconds
         pause_start = 0
-        while time() < sleep_until or paused:
+        while n >= 0 or paused:
             lines = get_number_lines(n)
             print_full_screen(lines, paused=paused)
 
