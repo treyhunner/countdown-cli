@@ -67,7 +67,7 @@ def test_drift_correction_skips_seconds_when_very_slow(
     is still bounded by wall clock time, not by sleep iteration count.
     """
     fake_terminal_size(40, 20)
-    # Each 0.05s sleep takes 0.55s (extreme drift: 10x)
+    # Drift of 0.5s per 0.05s sleep call (each sleep takes 0.55s total)
     fake_clock.drift_per_sleep = 0.5
 
     displayed_times = []
@@ -83,11 +83,11 @@ def test_drift_correction_skips_seconds_when_very_slow(
 
     # Timer should still start at 60m and count down
     assert displayed_times[0] == 60 * 60
-    # Each second is displayed for fewer sleep iterations due to drift,
-    # but the total still counts down correctly (each displayed value
-    # is less than the one before)
+    # With extreme drift, seconds are skipped entirely, but the countdown
+    # still proceeds monotonically downward
     for i in range(1, len(displayed_times)):
         assert displayed_times[i] < displayed_times[i - 1]
+    assert displayed_times[-1] == 0
 
 
 def test_pause_preserves_remaining_time(
@@ -106,7 +106,7 @@ def test_pause_preserves_remaining_time(
         displayed_times.append(seconds)
         return original_get_number_lines(seconds)
 
-    # Pause on first display, then resume after 3 checks while paused
+    # Pause on first check (count=1), resume on fifth check (count=5)
     keypress_count = [0]
 
     def fake_check_for_keypress():
@@ -133,6 +133,7 @@ def test_pause_preserves_remaining_time(
     assert 3 in displayed_times
     assert 2 in displayed_times
     assert 1 in displayed_times
+    assert 0 in displayed_times
 
 
 def test_add_time_extends_deadline(

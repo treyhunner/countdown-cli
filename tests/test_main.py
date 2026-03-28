@@ -190,9 +190,8 @@ def test_main_early_exit_still_shows_cursor_at_end(
     fake_clock.raises = {4: KeyboardInterrupt()}
 
     result = runner.invoke(__main__.main, ["15m"])
-    # 4 seconds of sleep = 4 iterations, each printing 5 lines + 1 padding line
-    # except the last which has no trailing padding = 4*6-1 = 23 lines,
-    # plus 2 lines vertical padding for 10-line terminal = 25 lines
+    # 4 iterations x 6 newlines each (2 padding + 4 between 5 content lines)
+    # = 24 newlines, no trailing newline (end=""), so splitlines() gives 25
     assert len(result.stdout.splitlines()) == 25
     assert result.stdout.endswith("\033[?25h\033[?1049l")
 
@@ -301,7 +300,7 @@ def test_sleep_exits_early_on_keypress(
 
     monkeypatch.setattr("countdown.__main__.sleep", tracking_sleep)
 
-    # Simulate keypress after 3rd sleep call (during chunked 1-second sleep)
+    # Simulate keypress after 3rd sleep call
     def fake_check_for_keypress():
         # Return True on the 3rd sleep chunk to simulate keypress mid-sleep
         return len(sleep_calls) == 3
@@ -319,7 +318,7 @@ def test_sleep_exits_early_on_keypress(
     result = runner.invoke(__main__.main, ["10s"])
     assert result.exit_code == 0, result.output
 
-    # Should have broken out of sleep loop early (not all 20 chunks)
+    # Should have broken out of sleep loop early
     assert len(sleep_calls) >= 3, "Should have at least 3 sleep calls"
     first_iteration_sleeps = [s for s in sleep_calls[:3] if s == 0.05]
     assert len(first_iteration_sleeps) == 3, (
