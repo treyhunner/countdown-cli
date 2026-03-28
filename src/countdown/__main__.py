@@ -42,7 +42,7 @@ def run_countdown(total_seconds):
         paused = False
         n = total_seconds
         sleep_until = time() + total_seconds
-        pause_start = 0
+        pause_start = None
         while n >= 0 or paused:
             lines = get_number_lines(n)
             print_full_screen(lines, paused=paused)
@@ -57,7 +57,7 @@ def run_countdown(total_seconds):
                 elif is_pause_key(key):
                     if paused:
                         sleep_until += time() - pause_start
-                        pause_start = 0
+                        pause_start = None
                     else:
                         pause_start = time()
                     paused = not paused
@@ -67,14 +67,16 @@ def run_countdown(total_seconds):
                 elif is_time_adjust_key(key):
                     # Adjust the timer by +/- 30 seconds
                     adjustment = get_time_adjustment(key)
-                    sleep_until += adjustment
-                    n = max(0, n + adjustment)  # Don't go below 0
+                    new_n = max(0, n + adjustment)  # Don't go below 0
+                    sleep_until += new_n - n
+                    n = new_n
                     drain_keypresses()  # Ignore any additional rapid keypresses
                     lines = get_number_lines(n)
                     print_full_screen(lines, paused=paused)
 
             # Only sleep and decrement if not paused
             if not paused:
+                # Wall-clock time at which to move from displaying n to n-1
                 display_this_second_until = sleep_until - n + 1
                 while time() < display_this_second_until:
                     # Sleep in small chunks to check for keypresses more frequently
