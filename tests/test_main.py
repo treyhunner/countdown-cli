@@ -1,34 +1,10 @@
 """Integration test cases for the CLI."""
 
-import os
 import re
 
 import pytest
-from click.testing import CliRunner
 
 from countdown import __main__
-
-
-class FakeSleep:
-    """Fake time.sleep."""
-
-    def __init__(self, *, raises={}):  # noqa: B006
-        self.slept = 0
-        self.raises = dict(raises)
-
-    def __call__(self, seconds):
-        self.slept += seconds
-        # Check for exception with floating point tolerance
-        for trigger_time, exception in self.raises.items():
-            if abs(self.slept - trigger_time) < 0.001:
-                raise exception
-
-
-def fake_size(columns, lines):
-    def get_terminal_size(fallback=(columns, lines)):
-        return os.terminal_size(fallback)
-
-    return get_terminal_size
 
 
 def clean_main_output(output):
@@ -36,12 +12,6 @@ def clean_main_output(output):
     output = re.sub(r"\033\[(\?\d+[hl]|[HJ])", "", output)
     output = re.sub(r" *\n", "\n", output)
     return output
-
-
-@pytest.fixture
-def runner():
-    """Fixture for invoking command-line interfaces."""
-    return CliRunner()
 
 
 def test_main_with_no_arguments(runner):
@@ -61,14 +31,9 @@ def test_version_works(runner):
     assert result.exit_code == 0
 
 
-def test_main_3_seconds_sleeps_4_times(runner, monkeypatch):
+def test_main_3_seconds(runner, fake_terminal_size, fake_clock):
     # Use 40x20 terminal to select size 5 digits (33w <= 40, 5h+2 <= 20)
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
-    fake_sleep = FakeSleep()
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_terminal_size(40, 20)
     result = runner.invoke(__main__.main, ["3s"])
     assert result.exit_code == 0
     assert clean_main_output(result.stdout) == (
@@ -97,21 +62,17 @@ def test_main_3_seconds_sleeps_4_times(runner, monkeypatch):
         "   ██  ██ ██  ██  ██  ██  ██ ██  ██\n"
         "   ██████ ██████      ██████ ██████ "
     )
-    # 3 seconds countdown = 4 iterations (3,2,1,0), each sleeps 1 second = 4 seconds total
-    # Sleeping in chunks of 0.05, so total is ~4 seconds (floating point precision)
-    assert fake_sleep.slept == pytest.approx(4.0, abs=0.01)
+    # 3 seconds + 1 to display 00:00, each sleeping ~1 second
+    assert fake_clock.slept == pytest.approx(3 + 1, abs=0.01)
+    assert fake_clock.elapsed == pytest.approx(3 + 1, abs=0.01)
 
 
-def test_main_1_minute(runner, monkeypatch):
+def test_main_1_minute(runner, fake_terminal_size, fake_clock):
     # Use 40x10 terminal to select size 5 digits (33w <= 40, 5h+2 <= 10)
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 10),
-    )
+    fake_terminal_size(40, 10)
 
-    # Raise exception after 11 sleeps
-    fake_sleep = FakeSleep(raises={11: SystemExit(0)})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    # Raise exception after 11 seconds of fake sleep
+    fake_clock.raises = {11: SystemExit(0)}
 
     result = runner.invoke(__main__.main, ["1m"])
     assert clean_main_output(result.stdout) == (
@@ -184,71 +145,68 @@ def test_main_1_minute(runner, monkeypatch):
     )
 
 
-def test_main_10_minutes_has_over_600_clear_screens(runner, monkeypatch):
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(32, 10),
-    )
-    fake_sleep = FakeSleep()
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+def test_main_10_minutes_has_600_clear_screens(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+):
+    fake_terminal_size(32, 10)
     result = runner.invoke(__main__.main, ["10m"])
-    # 10 minutes = 601 iterations, each sleeps 1 second (via 20×0.05 chunks)
-    # Floating point precision: 601 × 20 × 0.05 ≈ 601.0
-    assert fake_sleep.slept == pytest.approx(601.0, abs=0.1)
-    assert result.stdout.count("\033[H\033[J") == 601
+    # 10 minutes = 600 seconds + 1 to display 00:00
+    assert fake_clock.slept == pytest.approx(10 * 60 + 1, abs=0.1)
+    assert fake_clock.elapsed == pytest.approx(10 * 60 + 1, abs=0.1)
+    assert result.stdout.count("\033[H\033[J") == 10 * 60 + 1
 
 
 def test_main_enables_alt_buffer_and_hides_cursor_at_beginning(
-    runner, monkeypatch
+    runner,
+    fake_terminal_size,
+    fake_clock,
 ):
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(32, 10),
-    )
-    fake_sleep = FakeSleep()
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_terminal_size(32, 10)
     result = runner.invoke(__main__.main, ["5m"])
     assert result.stdout.startswith("\033[?1049h\033[?25l")
 
 
-def test_main_disable_alt_buffer_and_show_cursor_at_end(runner, monkeypatch):
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(32, 10),
-    )
-    fake_sleep = FakeSleep()
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+def test_main_disable_alt_buffer_and_show_cursor_at_end(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+):
+    fake_terminal_size(32, 10)
     result = runner.invoke(__main__.main, ["5m"])
     assert result.stdout.endswith("\033[?25h\033[?1049l")
 
 
-def test_main_early_exit_still_shows_cursor_at_end(runner, monkeypatch):
+def test_main_early_exit_still_shows_cursor_at_end(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+):
     # Use 40x10 terminal to select size 5 digits (33w <= 40, 5h+2 <= 10)
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 10),
-    )
+    fake_terminal_size(40, 10)
 
     # Hit Ctrl+C after 4 seconds total sleep time (chunked sleep)
-    fake_sleep = FakeSleep(raises={4: KeyboardInterrupt()})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_clock.raises = {4: KeyboardInterrupt()}
 
     result = runner.invoke(__main__.main, ["15m"])
-    # After 4 seconds of sleep, we've completed 4 iterations, each prints lines
-    assert len(result.stdout.splitlines()) == 25, "4 seconds of lines printed"
+    # 4 iterations x 6 newlines each (2 padding + 4 between 5 content lines)
+    # = 24 newlines, no trailing newline (end=""), so splitlines() gives 25
+    assert len(result.stdout.splitlines()) == 25
     assert result.stdout.endswith("\033[?25h\033[?1049l")
 
 
-def test_pause_key_triggers_pause(runner, monkeypatch):
+def test_pause_key_triggers_pause(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+    monkeypatch,
+):
     """Test that pressing a pause key triggers the pause logic."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
+    fake_terminal_size(40, 20)
 
     # Exit after a short time
-    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_clock.raises = {1: KeyboardInterrupt()}
 
     # Track whether pause key was detected
     pause_key_detected = [False]
@@ -283,15 +241,15 @@ def test_pause_key_triggers_pause(runner, monkeypatch):
     )
 
 
-def test_non_pause_key_ignored(runner, monkeypatch):
+def test_non_pause_key_ignored(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+    monkeypatch,
+):
     """Test that non-pause keys are ignored during countdown."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
-
-    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_terminal_size(40, 20)
+    fake_clock.raises = {1: KeyboardInterrupt()}
 
     # Track keypresses
     check_called = [False]
@@ -321,29 +279,29 @@ def test_non_pause_key_ignored(runner, monkeypatch):
     assert result.exit_code == 0
 
 
-def test_sleep_exits_early_on_keypress(runner, monkeypatch):
+def test_sleep_exits_early_on_keypress(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+    monkeypatch,
+):
     """Test that sleep loop exits early when a key is pressed mid-sleep."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
+    fake_terminal_size(40, 20)
 
-    # Track sleep calls
+    # Track sleep calls and use FakeClock for time control
     sleep_calls = []
+    original_sleep = fake_clock.sleep
 
-    def fake_sleep(seconds):
+    def tracking_sleep(seconds):
         sleep_calls.append(seconds)
-        # Exit after we've done a few sleep chunks
+        original_sleep(seconds)
         if len(sleep_calls) >= 5:
             raise KeyboardInterrupt()
 
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    monkeypatch.setattr("countdown.__main__.sleep", tracking_sleep)
 
-    # Simulate keypress after 3rd sleep call (during chunked 1-second sleep)
-    check_count = [0]
-
+    # Simulate keypress after 3rd sleep call
     def fake_check_for_keypress():
-        check_count[0] += 1
         # Return True on the 3rd sleep chunk to simulate keypress mid-sleep
         return len(sleep_calls) == 3
 
@@ -360,34 +318,34 @@ def test_sleep_exits_early_on_keypress(runner, monkeypatch):
     result = runner.invoke(__main__.main, ["10s"])
     assert result.exit_code == 0, result.output
 
-    # Should have broken out of sleep loop early (not all 20 chunks)
-    # We expect: 3 chunks of first iteration, then breaks, then starts paused sleep
-    # The key point is we don't see all 20 chunks of 0.05 before breaking
+    # Should have broken out of sleep loop early
     assert len(sleep_calls) >= 3, "Should have at least 3 sleep calls"
-    # If it didn't exit early, we'd see many more 0.05 sleep calls
-    # The presence of the break means we don't complete all 20 chunks
     first_iteration_sleeps = [s for s in sleep_calls[:3] if s == 0.05]
     assert len(first_iteration_sleeps) == 3, (
         "Should have 3 chunks of 0.05s before breaking"
     )
 
 
-def test_resume_from_pause_exits_early(runner, monkeypatch):
+def test_resume_from_pause_exits_early(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+    monkeypatch,
+):
     """Test that when paused, pressing a key to resume exits the 0.05s sleep loop."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
+    fake_terminal_size(40, 20)
 
     sleep_calls = []
     paused_state = [False]
+    original_sleep = fake_clock.sleep
 
-    def fake_sleep(seconds):
+    def tracking_sleep(seconds):
         sleep_calls.append((seconds, paused_state[0]))
+        original_sleep(seconds)
         if len(sleep_calls) >= 10:
             raise KeyboardInterrupt()
 
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    monkeypatch.setattr("countdown.__main__.sleep", tracking_sleep)
 
     # Simulate: pause immediately, then resume after a few paused sleeps
     keypress_count = [0]
@@ -432,15 +390,12 @@ def test_resume_from_pause_exits_early(runner, monkeypatch):
     assert len(unpaused_sleeps) > 0, "Should have some unpaused sleep periods"
 
 
-def test_add_time_with_plus_key(runner, monkeypatch):
+def test_add_time_with_plus_key(
+    runner, fake_terminal_size, fake_clock, monkeypatch
+):
     """Test that pressing + adds 30 seconds to the timer."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
-
-    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_terminal_size(40, 20)
+    fake_clock.raises = {1: KeyboardInterrupt()}
 
     # Track the displayed times
     displayed_times = []
@@ -473,15 +428,15 @@ def test_add_time_with_plus_key(runner, monkeypatch):
     assert 90 in displayed_times, "Should display 90s after adding 30s"
 
 
-def test_subtract_time_with_minus_key(runner, monkeypatch):
+def test_subtract_time_with_minus_key(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+    monkeypatch,
+):
     """Test that pressing - subtracts 30 seconds from the timer."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
-
-    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_terminal_size(40, 20)
+    fake_clock.raises = {1: KeyboardInterrupt()}
 
     # Track the displayed times
     displayed_times = []
@@ -514,15 +469,15 @@ def test_subtract_time_with_minus_key(runner, monkeypatch):
     assert 30 in displayed_times, "Should display 30s after subtracting 30s"
 
 
-def test_subtract_time_cannot_go_negative(runner, monkeypatch):
+def test_subtract_time_cannot_go_negative(
+    runner,
+    fake_terminal_size,
+    fake_clock,
+    monkeypatch,
+):
     """Test that subtracting time stops at 0 (cannot go negative)."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
-
-    fake_sleep = FakeSleep(raises={1: KeyboardInterrupt()})
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
+    fake_terminal_size(40, 20)
+    fake_clock.raises = {1: KeyboardInterrupt()}
 
     # Track the displayed times
     displayed_times = []
@@ -560,16 +515,9 @@ def test_subtract_time_cannot_go_negative(runner, monkeypatch):
     )
 
 
-def test_q_key_quits_timer(runner, monkeypatch):
+def test_q_key_quits_timer(runner, fake_terminal_size, fake_clock, monkeypatch):
     """Test that pressing 'q' exits the timer."""
-    monkeypatch.setattr(
-        "countdown.display.get_terminal_size",
-        fake_size(40, 20),
-    )
-
-    fake_sleep = FakeSleep()
-    monkeypatch.setattr("countdown.__main__.sleep", fake_sleep)
-
+    fake_terminal_size(40, 20)
     keypress_count = [0]
 
     def fake_check_for_keypress():
