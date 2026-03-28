@@ -50,14 +50,14 @@ show_missing = true
 fail_under = 100
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/countdown"]
+requires = ["uv_build>=0.10.9,<0.11"]
+build-backend = "uv_build"
 
 [tool.uv]
 required-version = ">=0.9.6"
+
+[tool.uv.build-backend]
+module-name = "countdown"
 
 [tool.ruff]
 target-version = "py310"
