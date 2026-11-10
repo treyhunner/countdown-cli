@@ -25,6 +25,8 @@ def duration(string):
     if not match:
         raise ValueError(f"Invalid duration: {string}")
     minutes, seconds = match.groups()
+    if minutes is None and seconds is None:
+        raise ValueError(f"Invalid duration: {string}")
     return int(minutes or 0) * 60 + int(seconds or 0)
 
 
