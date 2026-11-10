@@ -18,6 +18,11 @@ def test_invalid_duration():
         timer.duration("10")
 
 
+def test_empty_duration():
+    with pytest.raises(ValueError):
+        timer.duration("")
+
+
 def test_duration_10_seconds():
     assert timer.duration("10s") == 10
 
